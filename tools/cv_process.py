@@ -49,6 +49,41 @@ class CVProcessTool(Tool):
             return_url = tool_parameters.get('return_url', True)
             form_data['return_url'] = bool(return_url)
             
+            # 处理水印参数
+            add_logo = tool_parameters.get('add_logo', False)
+            if add_logo:
+                logo_info = {
+                    'add_logo': True,
+                    'position': int(tool_parameters.get('logo_position', 0)),
+                    'language': int(tool_parameters.get('logo_language', 0)),
+                    'opacity': float(tool_parameters.get('logo_opacity', 1.0))
+                }
+                logo_text_content = tool_parameters.get('logo_text_content')
+                if logo_text_content:
+                    logo_info['logo_text_content'] = logo_text_content
+                form_data['logo_info'] = logo_info
+            
+            # 处理AIGC元数据参数
+            add_aigc_meta = tool_parameters.get('add_aigc_meta', False)
+            
+            if add_aigc_meta:
+                aigc_meta = {}
+                content_producer = tool_parameters.get('content_producer')
+                if content_producer:
+                    aigc_meta['content_producer'] = content_producer
+                producer_id = tool_parameters.get('producer_id')
+                if producer_id:
+                    aigc_meta['producer_id'] = producer_id
+                content_propagator = tool_parameters.get('content_propagator')
+                if content_propagator:
+                    aigc_meta['content_propagator'] = content_propagator
+                propagate_id = tool_parameters.get('propagate_id')
+                if propagate_id:
+                    aigc_meta['propagate_id'] = propagate_id
+                
+                if aigc_meta:
+                    form_data['aigc_meta'] = json.dumps(aigc_meta)
+            
             # 创建VisualService实例
             visual_service = VisualService()
             visual_service.set_ak(access_key)
@@ -59,8 +94,8 @@ class CVProcessTool(Tool):
             # 调用cv_process API
             response = visual_service.cv_process(form_data)
             
-            # 返回结果
-            yield self.create_json_message({
+            # 解析响应结果
+            result_data = {
                 "status": "success",
                 "message": "Image generation completed",
                 "prompt": prompt,
@@ -72,8 +107,38 @@ class CVProcessTool(Tool):
                     "use_sr": use_sr,
                     "return_url": return_url
                 },
-                "result": response
-            })
+                "raw_response": response
+            }
+            
+            # 提取关键字段
+            if isinstance(response, dict):
+                if 'code' in response and response['code'] == 10000:
+                    result_data['success'] = True
+                    if 'data' in response:
+                        data = response['data']
+                        # 提取base64图片数据
+                        if 'binary_data_base64' in data:
+                            result_data['image_base64'] = data['binary_data_base64']
+                            yield self.create_text_message("✅ Image generated successfully with base64 data")
+                        
+                        # 提取图片URL
+                        if 'image_urls' in data and data['image_urls']:
+                            result_data['image_urls'] = data['image_urls']
+                            yield self.create_text_message(f"🔗 Generated {len(data['image_urls'])} image URL(s)")
+                        
+                        # 提取其他有用信息
+                        if 'task_id' in data:
+                            result_data['task_id'] = data['task_id']
+                        if 'req_id' in data:
+                            result_data['req_id'] = data['req_id']
+                else:
+                    result_data['success'] = False
+                    result_data['error_code'] = response.get('code', 'unknown')
+                    result_data['error_message'] = response.get('message', 'Unknown error')
+                    yield self.create_text_message(f"❌ Generation failed: {result_data['error_message']}")
+            
+            # 返回结果
+            yield self.create_json_message(result_data)
             
         except Exception as e:
             yield self.create_text_message(f"Error: {str(e)}")
