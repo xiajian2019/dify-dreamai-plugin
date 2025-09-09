@@ -1,0 +1,30 @@
+identity:
+  name: "dreamai"
+  author: "xiajian"
+  label:
+    en_US: "dreamai"
+    zh_Hans: "dreamai"
+    pt_BR: "dreamai"
+description:
+  human:
+    en_US: "火山即梦AI对接"
+    zh_Hans: "火山即梦AI对接"
+    pt_BR: "火山即梦AI对接"
+  llm: "火山即梦AI对接"
+parameters:
+  - name: query
+    type: string
+    required: true
+    label:
+      en_US: Query string
+      zh_Hans: 查询语句
+      pt_BR: Query string
+    human_description:
+      en_US: "火山即梦AI对接"
+      zh_Hans: "火山即梦AI对接"
+      pt_BR: "火山即梦AI对接"
+    llm_description: "火山即梦AI对接"
+    form: llm
+extra:
+  python:
+    source: tools/dreamai.py
