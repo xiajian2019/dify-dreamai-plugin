@@ -1,0 +1,220 @@
+identity:
+  name: "motion_imitation"
+  author: "xiajian"
+  label:
+    en_US: "Motion Imitation"
+    zh_Hans: "动作模仿"
+    pt_BR: "Imitação de Movimento"
+  description:
+    en_US: "Motion imitation video generation using VolcEngine DreamAI"
+    zh_Hans: "使用火山引擎即梦AI进行动作模仿视频生成"
+    pt_BR: "Geração de vídeo de imitação de movimento usando VolcEngine DreamAI"
+  icon: "icon.svg"
+description:
+  human:
+    en_US: "Motion imitation video generation using VolcEngine DreamAI"
+    zh_Hans: "使用火山引擎即梦AI进行动作模仿视频生成"
+    pt_BR: "Geração de vídeo de imitação de movimento usando VolcEngine DreamAI"
+  llm: "Motion imitation video generation using VolcEngine DreamAI. Generate videos where a source image mimics motions from a reference video."
+parameters:
+  - name: source_image
+    type: string
+    required: true
+    label:
+      en_US: Source Image
+      zh_Hans: 源图像
+      pt_BR: Imagem Fonte
+    human_description:
+      en_US: "Source image that will perform the motion (base64 encoded or URL)"
+      zh_Hans: "将执行动作的源图像（base64编码或URL）"
+      pt_BR: "Imagem fonte que executará o movimento (codificada em base64 ou URL)"
+    llm_description: "Source image for motion imitation (base64 encoded or URL)"
+    form: form
+
+  - name: motion_video
+    type: string
+    required: true
+    label:
+      en_US: Motion Video
+      zh_Hans: 动作视频
+      pt_BR: Vídeo de Movimento
+    human_description:
+      en_US: "Reference video containing the motion to imitate (base64 encoded or URL)"
+      zh_Hans: "包含要模仿动作的参考视频（base64编码或URL）"
+      pt_BR: "Vídeo de referência contendo o movimento a imitar (codificado em base64 ou URL)"
+    llm_description: "Reference video for motion extraction (base64 encoded or URL)"
+    form: form
+
+  - name: duration
+    type: number
+    required: false
+    default: 4
+    label:
+      en_US: Duration (seconds)
+      zh_Hans: 时长（秒）
+      pt_BR: Duração (segundos)
+    human_description:
+      en_US: "Output video duration in seconds (2-10)"
+      zh_Hans: "输出视频时长，单位秒（2-10）"
+      pt_BR: "Duração do vídeo de saída em segundos (2-10)"
+    llm_description: "Duration of the generated video in seconds"
+    form: form
+
+  - name: fps
+    type: number
+    required: false
+    default: 24
+    label:
+      en_US: Frame Rate (FPS)
+      zh_Hans: 帧率（FPS）
+      pt_BR: Taxa de Quadros (FPS)
+    human_description:
+      en_US: "Video frame rate (12, 24, or 30 FPS)"
+      zh_Hans: "视频帧率（12、24或30 FPS）"
+      pt_BR: "Taxa de quadros do vídeo (12, 24 ou 30 FPS)"
+    llm_description: "Frame rate for the generated video"
+    form: form
+
+  - name: aspect_ratio
+    type: select
+    required: false
+    default: "16:9"
+    label:
+      en_US: Aspect Ratio
+      zh_Hans: 宽高比
+      pt_BR: Proporção
+    human_description:
+      en_US: "Output video aspect ratio"
+      zh_Hans: "输出视频宽高比"
+      pt_BR: "Proporção do vídeo de saída"
+    llm_description: "Aspect ratio for the generated video"
+    form: form
+    options:
+      - value: "16:9"
+        label:
+          en_US: "16:9 (Landscape)"
+          zh_Hans: "16:9（横向）"
+          pt_BR: "16:9 (Paisagem)"
+      - value: "9:16"
+        label:
+          en_US: "9:16 (Portrait)"
+          zh_Hans: "9:16（纵向）"
+          pt_BR: "9:16 (Retrato)"
+      - value: "1:1"
+        label:
+          en_US: "1:1 (Square)"
+          zh_Hans: "1:1（正方形）"
+          pt_BR: "1:1 (Quadrado)"
+      - value: "4:3"
+        label:
+          en_US: "4:3"
+          zh_Hans: "4:3"
+          pt_BR: "4:3"
+
+  - name: motion_strength
+    type: number
+    required: false
+    default: 0.8
+    label:
+      en_US: Motion Strength
+      zh_Hans: 动作强度
+      pt_BR: Força do Movimento
+    human_description:
+      en_US: "Strength of motion imitation (0.0-1.0)"
+      zh_Hans: "动作模仿的强度（0.0-1.0）"
+      pt_BR: "Força da imitação de movimento (0.0-1.0)"
+    llm_description: "Strength of motion imitation (0.0 to 1.0)"
+    form: form
+
+  - name: face_fidelity
+    type: number
+    required: false
+    default: 0.8
+    label:
+      en_US: Face Fidelity
+      zh_Hans: 面部保真度
+      pt_BR: Fidelidade Facial
+    human_description:
+      en_US: "How well to preserve facial features (0.0-1.0)"
+      zh_Hans: "面部特征保持程度（0.0-1.0）"
+      pt_BR: "Quão bem preservar características faciais (0.0-1.0)"
+    llm_description: "Fidelity of facial feature preservation (0.0 to 1.0)"
+    form: form
+
+  - name: body_fidelity
+    type: number
+    required: false
+    default: 0.8
+    label:
+      en_US: Body Fidelity
+      zh_Hans: 身体保真度
+      pt_BR: Fidelidade Corporal
+    human_description:
+      en_US: "How well to preserve body features (0.0-1.0)"
+      zh_Hans: "身体特征保持程度（0.0-1.0）"
+      pt_BR: "Quão bem preservar características corporais (0.0-1.0)"
+    llm_description: "Fidelity of body feature preservation (0.0 to 1.0)"
+    form: form
+
+  - name: preserve_background
+    type: boolean
+    required: false
+    default: true
+    label:
+      en_US: Preserve Background
+      zh_Hans: 保持背景
+      pt_BR: Preservar Fundo
+    human_description:
+      en_US: "Whether to preserve the original background"
+      zh_Hans: "是否保持原始背景"
+      pt_BR: "Se deve preservar o fundo original"
+    llm_description: "Whether to preserve the original background"
+    form: form
+
+  - name: smoothness
+    type: number
+    required: false
+    default: 0.5
+    label:
+      en_US: Smoothness
+      zh_Hans: 平滑度
+      pt_BR: Suavidade
+    human_description:
+      en_US: "Motion smoothness level (0.0-1.0)"
+      zh_Hans: "动作平滑度级别（0.0-1.0）"
+      pt_BR: "Nível de suavidade do movimento (0.0-1.0)"
+    llm_description: "Smoothness level for motion transitions (0.0 to 1.0)"
+    form: form
+
+  - name: seed
+    type: number
+    required: false
+    default: -1
+    label:
+      en_US: Seed
+      zh_Hans: 随机种子
+      pt_BR: Semente
+    human_description:
+      en_US: "Random seed for reproducible results (-1 for random)"
+      zh_Hans: "随机种子，用于可重现的结果（-1表示随机）"
+      pt_BR: "Semente aleatória para resultados reproduzíveis (-1 para aleatório)"
+    llm_description: "Random seed for deterministic generation, -1 for random"
+    form: form
+
+  - name: return_url
+    type: boolean
+    required: false
+    default: true
+    label:
+      en_US: Return URL
+      zh_Hans: 返回URL
+      pt_BR: Retornar URL
+    human_description:
+      en_US: "Return video URL instead of binary data"
+      zh_Hans: "返回视频URL而非二进制数据"
+      pt_BR: "Retornar URL do vídeo em vez de dados binários"
+    llm_description: "Whether to return video URL or binary data"
+    form: form
+extra:
+  python:
+    source: tools/motion_imitation.py

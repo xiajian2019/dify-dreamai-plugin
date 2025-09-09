@@ -1,21 +1,21 @@
 identity:
-  name: "cv_process"
+  name: "sync_text_to_image"
   author: "xiajian"
   label:
-    en_US: "CV Process"
-    zh_Hans: "同步图片/视频生成"
-    pt_BR: "CV Process"
+    en_US: "Sync Text to Image"
+    zh_Hans: "同步文生图"
+    pt_BR: "Sync Text to Image"
   description:
-    en_US: "Synchronous image/video generation using VolcEngine DreamAI"
-    zh_Hans: "使用火山引擎即梦AI进行同步图片/视频生成"
-    pt_BR: "Geração síncrona de imagem/vídeo usando VolcEngine DreamAI"
+    en_US: "Synchronous text-to-image generation using VolcEngine DreamAI"
+    zh_Hans: "使用火山引擎即梦AI进行同步文生图"
+    pt_BR: "Geração síncrona de texto para imagem usando VolcEngine DreamAI"
   icon: "icon.svg"
 description:
   human:
-    en_US: "Synchronous image/video generation using VolcEngine DreamAI"
-    zh_Hans: "使用火山引擎即梦AI进行同步图片/视频生成"
-    pt_BR: "Geração síncrona de imagem/vídeo usando VolcEngine DreamAI"
-  llm: "Synchronous image/video generation using VolcEngine DreamAI. This tool processes requests immediately and returns results directly."
+    en_US: "Synchronous text-to-image generation using VolcEngine DreamAI"
+    zh_Hans: "使用火山引擎即梦AI进行同步文生图"
+    pt_BR: "Geração síncrona de texto para imagem usando VolcEngine DreamAI"
+  llm: "Synchronous text-to-image generation using VolcEngine DreamAI. This tool processes text prompts immediately and returns generated images directly."
 parameters:
   - name: prompt
     type: string
@@ -275,4 +275,4 @@ parameters:
         value: true
 extra:
   python:
-    source: tools/cv_process.py
+    source: tools/sync_text_to_image.py

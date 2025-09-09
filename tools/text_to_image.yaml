@@ -1,0 +1,261 @@
+identity:
+  name: "text_to_image"
+  author: "xiajian"
+  label:
+    en_US: "Text to Image"
+    zh_Hans: "文生图"
+    pt_BR: "Text to Image"
+  description:
+    en_US: "Text-to-image generation using VolcEngine DreamAI 3.0/3.1"
+    zh_Hans: "使用火山引擎即梦AI 3.0/3.1进行文生图"
+    pt_BR: "Geração de texto para imagem usando VolcEngine DreamAI 3.0/3.1"
+  icon: "icon.svg"
+description:
+  human:
+    en_US: "Text-to-image generation using VolcEngine DreamAI 3.0/3.1"
+    zh_Hans: "使用火山引擎即梦AI 3.0/3.1进行文生图"
+    pt_BR: "Geração de texto para imagem usando VolcEngine DreamAI 3.0/3.1"
+  llm: "Text-to-image generation using VolcEngine DreamAI 3.0/3.1. Supports advanced features like style control and quality settings."
+parameters:
+  - name: prompt
+    type: string
+    required: true
+    label:
+      en_US: Prompt
+      zh_Hans: 提示词
+      pt_BR: Prompt
+    human_description:
+      en_US: "Text prompt for image generation, supports both Chinese and English"
+      zh_Hans: "用于生成图像的提示词，中英文均可输入"
+      pt_BR: "Prompt de texto para geração de imagem, suporta chinês e inglês"
+    llm_description: "Text prompt describing the desired image content and style"
+    form: llm
+
+  - name: model_version
+    type: select
+    required: false
+    default: "3.1"
+    label:
+      en_US: Model Version
+      zh_Hans: 模型版本
+      pt_BR: Versão do Modelo
+    human_description:
+      en_US: "Choose between DreamAI 3.0 or 3.1 model"
+      zh_Hans: "选择即梦AI 3.0或3.1模型"
+      pt_BR: "Escolha entre o modelo DreamAI 3.0 ou 3.1"
+    llm_description: "Model version to use for generation (3.0 or 3.1)"
+    form: form
+    options:
+      - value: "3.0"
+        label:
+          en_US: "DreamAI 3.0"
+          zh_Hans: "即梦AI 3.0"
+          pt_BR: "DreamAI 3.0"
+      - value: "3.1"
+        label:
+          en_US: "DreamAI 3.1"
+          zh_Hans: "即梦AI 3.1"
+          pt_BR: "DreamAI 3.1"
+
+  - name: width
+    type: number
+    required: false
+    default: 1024
+    label:
+      en_US: Width
+      zh_Hans: 宽度
+      pt_BR: Largura
+    human_description:
+      en_US: "Image width in pixels (512-2048)"
+      zh_Hans: "图像宽度，单位像素（512-2048）"
+      pt_BR: "Largura da imagem em pixels (512-2048)"
+    llm_description: "Width of the generated image in pixels"
+    form: form
+
+  - name: height
+    type: number
+    required: false
+    default: 1024
+    label:
+      en_US: Height
+      zh_Hans: 高度
+      pt_BR: Altura
+    human_description:
+      en_US: "Image height in pixels (512-2048)"
+      zh_Hans: "图像高度，单位像素（512-2048）"
+      pt_BR: "Altura da imagem em pixels (512-2048)"
+    llm_description: "Height of the generated image in pixels"
+    form: form
+
+  - name: style
+    type: select
+    required: false
+    label:
+      en_US: Style
+      zh_Hans: 风格
+      pt_BR: Estilo
+    human_description:
+      en_US: "Image style (only for 3.1 model)"
+      zh_Hans: "图像风格（仅3.1模型支持）"
+      pt_BR: "Estilo da imagem (apenas para modelo 3.1)"
+    llm_description: "Style preset for image generation (3.1 model only)"
+    form: form
+    depends_on:
+      - variable: model_version
+        value: "3.1"
+    options:
+      - value: "realistic"
+        label:
+          en_US: "Realistic"
+          zh_Hans: "写实"
+          pt_BR: "Realista"
+      - value: "anime"
+        label:
+          en_US: "Anime"
+          zh_Hans: "动漫"
+          pt_BR: "Anime"
+      - value: "oil_painting"
+        label:
+          en_US: "Oil Painting"
+          zh_Hans: "油画"
+          pt_BR: "Pintura a Óleo"
+      - value: "watercolor"
+        label:
+          en_US: "Watercolor"
+          zh_Hans: "水彩"
+          pt_BR: "Aquarela"
+
+  - name: quality
+    type: select
+    required: false
+    default: "standard"
+    label:
+      en_US: Quality
+      zh_Hans: 质量
+      pt_BR: Qualidade
+    human_description:
+      en_US: "Image quality (only for 3.1 model)"
+      zh_Hans: "图像质量（仅3.1模型支持）"
+      pt_BR: "Qualidade da imagem (apenas para modelo 3.1)"
+    llm_description: "Quality level for image generation (3.1 model only)"
+    form: form
+    depends_on:
+      - variable: model_version
+        value: "3.1"
+    options:
+      - value: "standard"
+        label:
+          en_US: "Standard"
+          zh_Hans: "标准"
+          pt_BR: "Padrão"
+      - value: "high"
+        label:
+          en_US: "High"
+          zh_Hans: "高质量"
+          pt_BR: "Alta"
+
+  - name: aspect_ratio
+    type: select
+    required: false
+    label:
+      en_US: Aspect Ratio
+      zh_Hans: 宽高比
+      pt_BR: Proporção
+    human_description:
+      en_US: "Image aspect ratio (only for 3.1 model)"
+      zh_Hans: "图像宽高比（仅3.1模型支持）"
+      pt_BR: "Proporção da imagem (apenas para modelo 3.1)"
+    llm_description: "Aspect ratio for image generation (3.1 model only)"
+    form: form
+    depends_on:
+      - variable: model_version
+        value: "3.1"
+    options:
+      - value: "1:1"
+        label:
+          en_US: "1:1 (Square)"
+          zh_Hans: "1:1（正方形）"
+          pt_BR: "1:1 (Quadrado)"
+      - value: "16:9"
+        label:
+          en_US: "16:9 (Landscape)"
+          zh_Hans: "16:9（横向）"
+          pt_BR: "16:9 (Paisagem)"
+      - value: "9:16"
+        label:
+          en_US: "9:16 (Portrait)"
+          zh_Hans: "9:16（纵向）"
+          pt_BR: "9:16 (Retrato)"
+      - value: "4:3"
+        label:
+          en_US: "4:3"
+          zh_Hans: "4:3"
+          pt_BR: "4:3"
+      - value: "3:4"
+        label:
+          en_US: "3:4"
+          zh_Hans: "3:4"
+          pt_BR: "3:4"
+
+  - name: seed
+    type: number
+    required: false
+    default: -1
+    label:
+      en_US: Seed
+      zh_Hans: 随机种子
+      pt_BR: Semente
+    human_description:
+      en_US: "Random seed for reproducible results (-1 for random)"
+      zh_Hans: "随机种子，用于可重现的结果（-1表示随机）"
+      pt_BR: "Semente aleatória para resultados reproduzíveis (-1 para aleatório)"
+    llm_description: "Random seed for deterministic generation, -1 for random"
+    form: form
+
+  - name: use_pre_llm
+    type: boolean
+    required: false
+    default: true
+    label:
+      en_US: Use Pre-LLM
+      zh_Hans: 使用预处理LLM
+      pt_BR: Usar Pre-LLM
+    human_description:
+      en_US: "Enable prompt preprocessing with LLM"
+      zh_Hans: "启用LLM提示词预处理"
+      pt_BR: "Habilitar pré-processamento de prompt com LLM"
+    llm_description: "Whether to use LLM for prompt preprocessing"
+    form: form
+
+  - name: use_sr
+    type: boolean
+    required: false
+    default: true
+    label:
+      en_US: Use Super Resolution
+      zh_Hans: 使用超分辨率
+      pt_BR: Usar Super Resolução
+    human_description:
+      en_US: "Enable super resolution for higher quality"
+      zh_Hans: "启用超分辨率以获得更高质量"
+      pt_BR: "Habilitar super resolução para maior qualidade"
+    llm_description: "Whether to apply super resolution enhancement"
+    form: form
+
+  - name: return_url
+    type: boolean
+    required: false
+    default: true
+    label:
+      en_US: Return URL
+      zh_Hans: 返回URL
+      pt_BR: Retornar URL
+    human_description:
+      en_US: "Return image URL instead of binary data"
+      zh_Hans: "返回图像URL而非二进制数据"
+      pt_BR: "Retornar URL da imagem em vez de dados binários"
+    llm_description: "Whether to return image URL or binary data"
+    form: form
+extra:
+  python:
+    source: tools/text_to_image.py

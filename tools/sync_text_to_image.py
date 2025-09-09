@@ -7,7 +7,7 @@ from dify_plugin.entities.tool import ToolInvokeMessage
 from volcengine.visual.VisualService import VisualService
 
 
-class CVProcessTool(Tool):
+class SyncTextToImageTool(Tool):
     def _invoke(self, tool_parameters: dict[str, Any]) -> Generator[ToolInvokeMessage]:
         try:
             # 获取凭证

@@ -1,0 +1,220 @@
+identity:
+  name: "image_to_image"
+  author: "xiajian"
+  label:
+    en_US: "Image to Image"
+    zh_Hans: "图生图"
+    pt_BR: "Image to Image"
+  description:
+    en_US: "Image-to-image generation using VolcEngine DreamAI 3.0 Smart Reference"
+    zh_Hans: "使用火山引擎即梦AI 3.0智能参考进行图生图"
+    pt_BR: "Geração de imagem para imagem usando VolcEngine DreamAI 3.0 Smart Reference"
+  icon: "icon.svg"
+description:
+  human:
+    en_US: "Image-to-image generation using VolcEngine DreamAI 3.0 Smart Reference"
+    zh_Hans: "使用火山引擎即梦AI 3.0智能参考进行图生图"
+    pt_BR: "Geração de imagem para imagem usando VolcEngine DreamAI 3.0 Smart Reference"
+  llm: "Image-to-image generation using VolcEngine DreamAI 3.0 Smart Reference. Generate new images based on reference images with intelligent style and structure control."
+parameters:
+  - name: prompt
+    type: string
+    required: true
+    label:
+      en_US: Prompt
+      zh_Hans: 提示词
+      pt_BR: Prompt
+    human_description:
+      en_US: "Text prompt describing the desired image modifications"
+      zh_Hans: "描述期望图像修改的提示词"
+      pt_BR: "Prompt de texto descrevendo as modificações desejadas na imagem"
+    llm_description: "Text prompt describing how to modify the reference image"
+    form: llm
+
+  - name: reference_image
+    type: string
+    required: true
+    label:
+      en_US: Reference Image
+      zh_Hans: 参考图像
+      pt_BR: Imagem de Referência
+    human_description:
+      en_US: "Base64 encoded reference image or image URL"
+      zh_Hans: "Base64编码的参考图像或图像URL"
+      pt_BR: "Imagem de referência codificada em Base64 ou URL da imagem"
+    llm_description: "Reference image for generation (base64 encoded or URL)"
+    form: form
+
+  - name: width
+    type: number
+    required: false
+    default: 1024
+    label:
+      en_US: Width
+      zh_Hans: 宽度
+      pt_BR: Largura
+    human_description:
+      en_US: "Output image width in pixels (512-2048)"
+      zh_Hans: "输出图像宽度，单位像素（512-2048）"
+      pt_BR: "Largura da imagem de saída em pixels (512-2048)"
+    llm_description: "Width of the generated image in pixels"
+    form: form
+
+  - name: height
+    type: number
+    required: false
+    default: 1024
+    label:
+      en_US: Height
+      zh_Hans: 高度
+      pt_BR: Altura
+    human_description:
+      en_US: "Output image height in pixels (512-2048)"
+      zh_Hans: "输出图像高度，单位像素（512-2048）"
+      pt_BR: "Altura da imagem de saída em pixels (512-2048)"
+    llm_description: "Height of the generated image in pixels"
+    form: form
+
+  - name: reference_strength
+    type: number
+    required: false
+    default: 0.5
+    label:
+      en_US: Reference Strength
+      zh_Hans: 参考强度
+      pt_BR: Força da Referência
+    human_description:
+      en_US: "How strongly to follow the reference image (0.0-1.0)"
+      zh_Hans: "参考图像的影响强度（0.0-1.0）"
+      pt_BR: "Quão fortemente seguir a imagem de referência (0.0-1.0)"
+    llm_description: "Strength of reference image influence (0.0 to 1.0)"
+    form: form
+
+  - name: reference_mode
+    type: select
+    required: false
+    default: "auto"
+    label:
+      en_US: Reference Mode
+      zh_Hans: 参考模式
+      pt_BR: Modo de Referência
+    human_description:
+      en_US: "How to use the reference image"
+      zh_Hans: "如何使用参考图像"
+      pt_BR: "Como usar a imagem de referência"
+    llm_description: "Mode for using the reference image"
+    form: form
+    options:
+      - value: "auto"
+        label:
+          en_US: "Auto"
+          zh_Hans: "自动"
+          pt_BR: "Automático"
+      - value: "style"
+        label:
+          en_US: "Style Reference"
+          zh_Hans: "风格参考"
+          pt_BR: "Referência de Estilo"
+      - value: "structure"
+        label:
+          en_US: "Structure Reference"
+          zh_Hans: "结构参考"
+          pt_BR: "Referência de Estrutura"
+      - value: "both"
+        label:
+          en_US: "Style + Structure"
+          zh_Hans: "风格+结构"
+          pt_BR: "Estilo + Estrutura"
+
+  - name: style_weight
+    type: number
+    required: false
+    default: 0.5
+    label:
+      en_US: Style Weight
+      zh_Hans: 风格权重
+      pt_BR: Peso do Estilo
+    human_description:
+      en_US: "Weight for style reference (0.0-1.0)"
+      zh_Hans: "风格参考的权重（0.0-1.0）"
+      pt_BR: "Peso para referência de estilo (0.0-1.0)"
+    llm_description: "Weight for style reference influence (0.0 to 1.0)"
+    form: form
+
+  - name: structure_weight
+    type: number
+    required: false
+    default: 0.5
+    label:
+      en_US: Structure Weight
+      zh_Hans: 结构权重
+      pt_BR: Peso da Estrutura
+    human_description:
+      en_US: "Weight for structure reference (0.0-1.0)"
+      zh_Hans: "结构参考的权重（0.0-1.0）"
+      pt_BR: "Peso para referência de estrutura (0.0-1.0)"
+    llm_description: "Weight for structure reference influence (0.0 to 1.0)"
+    form: form
+
+  - name: seed
+    type: number
+    required: false
+    default: -1
+    label:
+      en_US: Seed
+      zh_Hans: 随机种子
+      pt_BR: Semente
+    human_description:
+      en_US: "Random seed for reproducible results (-1 for random)"
+      zh_Hans: "随机种子，用于可重现的结果（-1表示随机）"
+      pt_BR: "Semente aleatória para resultados reproduzíveis (-1 para aleatório)"
+    llm_description: "Random seed for deterministic generation, -1 for random"
+    form: form
+
+  - name: use_pre_llm
+    type: boolean
+    required: false
+    default: true
+    label:
+      en_US: Use Pre-LLM
+      zh_Hans: 使用预处理LLM
+      pt_BR: Usar Pre-LLM
+    human_description:
+      en_US: "Enable prompt preprocessing with LLM"
+      zh_Hans: "启用LLM提示词预处理"
+      pt_BR: "Habilitar pré-processamento de prompt com LLM"
+    llm_description: "Whether to use LLM for prompt preprocessing"
+    form: form
+
+  - name: use_sr
+    type: boolean
+    required: false
+    default: true
+    label:
+      en_US: Use Super Resolution
+      zh_Hans: 使用超分辨率
+      pt_BR: Usar Super Resolução
+    human_description:
+      en_US: "Enable super resolution for higher quality"
+      zh_Hans: "启用超分辨率以获得更高质量"
+      pt_BR: "Habilitar super resolução para maior qualidade"
+    llm_description: "Whether to apply super resolution enhancement"
+    form: form
+
+  - name: return_url
+    type: boolean
+    required: false
+    default: true
+    label:
+      en_US: Return URL
+      zh_Hans: 返回URL
+      pt_BR: Retornar URL
+    human_description:
+      en_US: "Return image URL instead of binary data"
+      zh_Hans: "返回图像URL而非二进制数据"
+      pt_BR: "Retornar URL da imagem em vez de dados binários"
+    llm_description: "Whether to return image URL or binary data"
+    form: form
+extra:
+  python:
+    source: tools/image_to_image.py
