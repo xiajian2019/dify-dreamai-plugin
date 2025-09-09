@@ -86,7 +86,6 @@ credentials_for_provider:
 #         en_US: "Access Token"
 
 tools:
-  - tools/dreamai.yaml
   - tools/cv_process.yaml
   - tools/cv_submit_task.yaml
   - tools/cv_get_result.yaml
