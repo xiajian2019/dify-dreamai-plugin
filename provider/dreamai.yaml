@@ -11,6 +11,38 @@ identity:
     pt_BR: "火山即梦AI对接"
   icon: "icon.svg"
 
+credentials_for_provider:
+  volcengine_access_key:
+    type: secret-input
+    required: true
+    label:
+      en_US: VolcEngine Access Key
+      zh_Hans: 火山引擎访问密钥
+      pt_BR: VolcEngine Access Key
+    placeholder:
+      en_US: Enter your VolcEngine Access Key
+      zh_Hans: 请输入您的火山引擎访问密钥
+      pt_BR: Digite sua chave de acesso VolcEngine
+    help:
+      en_US: You can find your Access Key in VolcEngine console
+      zh_Hans: 您可以在火山引擎控制台找到您的访问密钥
+      pt_BR: Você pode encontrar sua chave de acesso no console VolcEngine
+  volcengine_secret_key:
+    type: secret-input
+    required: true
+    label:
+      en_US: VolcEngine Secret Key
+      zh_Hans: 火山引擎密钥
+      pt_BR: VolcEngine Secret Key
+    placeholder:
+      en_US: Enter your VolcEngine Secret Key
+      zh_Hans: 请输入您的火山引擎密钥
+      pt_BR: Digite sua chave secreta VolcEngine
+    help:
+      en_US: You can find your Secret Key in VolcEngine console
+      zh_Hans: 您可以在火山引擎控制台找到您的密钥
+      pt_BR: Você pode encontrar sua chave secreta no console VolcEngine
+
 #########################################################################################
 # If you want to support OAuth, you can uncomment the following code.
 #########################################################################################
@@ -55,6 +87,9 @@ identity:
 
 tools:
   - tools/dreamai.yaml
+  - tools/cv_process.yaml
+  - tools/cv_submit_task.yaml
+  - tools/cv_get_result.yaml
 extra:
   python:
     source: provider/dreamai.py

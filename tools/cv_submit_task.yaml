@@ -1,0 +1,48 @@
+identity:
+  name: "cv_submit_task"
+  author: "xiajian"
+  label:
+    en_US: "CV Submit Task"
+    zh_Hans: "异步任务提交"
+    pt_BR: "CV Submit Task"
+  description:
+    en_US: "Submit asynchronous image/video generation task using VolcEngine DreamAI"
+    zh_Hans: "使用火山引擎即梦AI提交异步图片/视频生成任务"
+    pt_BR: "Enviar tarefa assíncrona de geração de imagem/vídeo usando VolcEngine DreamAI"
+  icon: "icon.svg"
+description:
+  human:
+    en_US: "Submit asynchronous image/video generation task using VolcEngine DreamAI"
+    zh_Hans: "使用火山引擎即梦AI提交异步图片/视频生成任务"
+    pt_BR: "Enviar tarefa assíncrona de geração de imagem/vídeo usando VolcEngine DreamAI"
+  llm: "Submit asynchronous image/video generation task using VolcEngine DreamAI. This tool submits a task and returns a task ID for later result retrieval."
+parameters:
+  - name: req_key
+    type: string
+    required: true
+    label:
+      en_US: Request Key
+      zh_Hans: 请求密钥
+      pt_BR: Chave de Solicitação
+    human_description:
+      en_US: "The request key for the specific AI service"
+      zh_Hans: "特定AI服务的请求密钥"
+      pt_BR: "A chave de solicitação para o serviço de IA específico"
+    llm_description: "The request key that identifies the specific AI service to use for processing"
+    form: llm
+  - name: request_body
+    type: string
+    required: true
+    label:
+      en_US: Request Body
+      zh_Hans: 请求体
+      pt_BR: Corpo da Solicitação
+    human_description:
+      en_US: "JSON string containing the request parameters"
+      zh_Hans: "包含请求参数的JSON字符串"
+      pt_BR: "String JSON contendo os parâmetros da solicitação"
+    llm_description: "JSON formatted string containing all the parameters needed for the AI processing request"
+    form: llm
+extra:
+  python:
+    source: tools/cv_submit_task.py

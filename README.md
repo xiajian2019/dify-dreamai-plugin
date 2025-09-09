@@ -165,6 +165,144 @@ if __name__ == '__main__':
     print(resp)
 
 
+## 运行 & 打包
+
+参考官方文档： 
+
+https://docs.dify.ai/plugin-dev-zh/9231-extension-plugin
+
+
+
+```sh 
+# 运行
+python -m main
+
+# 打包
+dify plugin package ./xxx
+```
+
+
+## 优化逻辑
+
+根据 API 文档 优化 现存的工具: 
+
+ https://www.volcengine.com/docs/85621/1537648
+即梦AI-文生图2.1 
+
+
+req_key
+是
+string
+服务标识，取固定值: jimeng_high_aes_general_v21_L
+
+仅支持 cv_process, 
+
+其他接口 不支持 cv_process。
+
+即梦AI-文生图2.1 其他参数： 
+
+prompt
+是
+string
+用于生成图像的提示词 ，中英文均可输入
+prompt书写规范参考上文描述
+
+seed
+可选
+int
+随机种子，作为确定扩散初始状态的基础，默认-1（随机）。若随机种子为相同正整数且其他参数均一致，则生成图片极大概率效果一致
+默认值：-1
+
+width
+可选
+int
+生成图像的宽
+默认值：512
+取值范围：[256, 768]
+宽、高与512差距过大，则出图效果不佳、延迟过长概率显著增加。
+超分前建议比例及对应宽高：width*height
+1:1：512*512
+4:3：512*384
+3:4：384*512
+3:2：512*341
+2:3：341*512
+16:9：512*288
+9:16：288*512
+height
+可选
+int
+生成图像的高
+默认值：512
+取值范围：[256, 768]
+use_pre_llm
+可选
+bool
+开启文本扩写，会针对输入prompt进行扩写优化，如果输入prompt较短建议开启，如果输入prompt较长建议关闭
+默认值：true
+prompt过短，如长度小于4时，推荐扩写默认打开，保证出图效果更优；
+prompt较长，如出图4张，可考虑1次关闭扩写，3次打开扩写，保证出图效果多样性
+use_sr
+可选
+bool
+True：文生图+AIGC超分
+False：文生图
+默认值：true
+内置的超分功能，开启后可将上述宽高均乘以2返回，此参数打开后延迟会有增加
+如上述宽高均为512和512，此参数关闭出图 512*512 ，此参数打开出图1024 * 1024
+return_url
+可选
+bool
+输出是否返回图片链接 （链接有效期为24小时）
+
+logo_info
+可选
+LogoInfo
+水印信息
+
+aigc_meta
+可选
+AIGCMeta
+隐式标识
+隐式标识验证方式：
+查看【png】或【mp4】格式，人工智能生成合成内容表示服务平台（后续预计增加jpg）
+https://www.gcmark.com/web/index.html#/mark/check/image
+查看【jpg】格式，使用app11 segment查看aigc元数据内容
+如 https://cyber.meme.tips/jpdump/#
+
+
+
+
+
+
+
+
+
+
+
+
+req_key
+string
+必选
+算法名称，取固定值为jimeng_t2i_v30
+
+
+req_key
+string
+必选
+算法名称，取固定值为jimeng_t2i_v31
+
+
+req_key
+string
+必选
+服务标识
+取固定值: jimeng_i2i_v30
+
+
+
+
+
+
 
 
 

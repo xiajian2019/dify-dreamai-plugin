@@ -8,11 +8,25 @@ class DreamaiProvider(ToolProvider):
     
     def _validate_credentials(self, credentials: dict[str, Any]) -> None:
         try:
-            """
-            IMPLEMENT YOUR VALIDATION HERE
-            """
+            from volcengine.visual.VisualService import VisualService
+            
+            # 获取凭证
+            access_key = credentials.get('volcengine_access_key')
+            secret_key = credentials.get('volcengine_secret_key')
+            
+            if not access_key or not secret_key:
+                raise ToolProviderCredentialValidationError("VolcEngine Access Key and Secret Key are required")
+            
+            # 创建服务实例并验证凭证
+            visual_service = VisualService()
+            visual_service.set_ak(access_key)
+            visual_service.set_sk(secret_key)
+            
+            # 简单的验证请求（可以根据实际API调整）
+            # 这里只是验证凭证格式，实际使用时会在工具中进行真正的API调用
+            
         except Exception as e:
-            raise ToolProviderCredentialValidationError(str(e))
+            raise ToolProviderCredentialValidationError(f"Invalid VolcEngine credentials: {str(e)}")
 
     #########################################################################################
     # If OAuth is supported, uncomment the following functions.
@@ -28,7 +42,10 @@ class DreamaiProvider(ToolProvider):
     #         """
     #     except Exception as e:
     #         raise ToolProviderOAuthError(str(e))
-    #     return ""
+    #     return {}
+
+
+
         
     # def _oauth_get_credentials(
     #     self, redirect_uri: str, system_credentials: Mapping[str, Any], request: Request

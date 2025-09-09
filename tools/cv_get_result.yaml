@@ -1,0 +1,48 @@
+identity:
+  name: "cv_get_result"
+  author: "xiajian"
+  label:
+    en_US: "CV Get Result"
+    zh_Hans: "异步任务结果查询"
+    pt_BR: "CV Get Result"
+  description:
+    en_US: "Get result of asynchronous image/video generation task using VolcEngine DreamAI"
+    zh_Hans: "使用火山引擎即梦AI查询异步图片/视频生成任务结果"
+    pt_BR: "Obter resultado da tarefa assíncrona de geração de imagem/vídeo usando VolcEngine DreamAI"
+  icon: "icon.svg"
+description:
+  human:
+    en_US: "Get result of asynchronous image/video generation task using VolcEngine DreamAI"
+    zh_Hans: "使用火山引擎即梦AI查询异步图片/视频生成任务结果"
+    pt_BR: "Obter resultado da tarefa assíncrona de geração de imagem/vídeo usando VolcEngine DreamAI"
+  llm: "Get result of asynchronous image/video generation task using VolcEngine DreamAI. This tool retrieves the result of a previously submitted task using the task ID."
+parameters:
+  - name: req_key
+    type: string
+    required: true
+    label:
+      en_US: Request Key
+      zh_Hans: 请求密钥
+      pt_BR: Chave de Solicitação
+    human_description:
+      en_US: "The request key for the specific AI service"
+      zh_Hans: "特定AI服务的请求密钥"
+      pt_BR: "A chave de solicitação para o serviço de IA específico"
+    llm_description: "The request key that identifies the specific AI service to use for processing"
+    form: llm
+  - name: task_id
+    type: string
+    required: true
+    label:
+      en_US: Task ID
+      zh_Hans: 任务ID
+      pt_BR: ID da Tarefa
+    human_description:
+      en_US: "The task ID returned from cv_submit_task"
+      zh_Hans: "从cv_submit_task返回的任务ID"
+      pt_BR: "O ID da tarefa retornado do cv_submit_task"
+    llm_description: "The unique task identifier returned when the task was submitted using cv_submit_task"
+    form: llm
+extra:
+  python:
+    source: tools/cv_get_result.py

@@ -1,0 +1,119 @@
+identity:
+  name: "cv_process"
+  author: "xiajian"
+  label:
+    en_US: "CV Process"
+    zh_Hans: "同步图片/视频生成"
+    pt_BR: "CV Process"
+  description:
+    en_US: "Synchronous image/video generation using VolcEngine DreamAI"
+    zh_Hans: "使用火山引擎即梦AI进行同步图片/视频生成"
+    pt_BR: "Geração síncrona de imagem/vídeo usando VolcEngine DreamAI"
+  icon: "icon.svg"
+description:
+  human:
+    en_US: "Synchronous image/video generation using VolcEngine DreamAI"
+    zh_Hans: "使用火山引擎即梦AI进行同步图片/视频生成"
+    pt_BR: "Geração síncrona de imagem/vídeo usando VolcEngine DreamAI"
+  llm: "Synchronous image/video generation using VolcEngine DreamAI. This tool processes requests immediately and returns results directly."
+parameters:
+  - name: prompt
+    type: string
+    required: true
+    label:
+      en_US: Prompt
+      zh_Hans: 提示词
+      pt_BR: Prompt
+    human_description:
+      en_US: "Text prompt for image generation, supports both Chinese and English"
+      zh_Hans: "用于生成图像的提示词，中英文均可输入"
+      pt_BR: "Prompt de texto para geração de imagem, suporta chinês e inglês"
+    llm_description: "Text prompt used to generate images, supports both Chinese and English input"
+    form: llm
+  - name: seed
+    type: number
+    required: false
+    default: -1
+    label:
+      en_US: Seed
+      zh_Hans: 随机种子
+      pt_BR: Semente
+    human_description:
+      en_US: "Random seed for deterministic generation, default -1 (random)"
+      zh_Hans: "随机种子，用于确定扩散初始状态，默认-1（随机）"
+      pt_BR: "Semente aleatória para geração determinística, padrão -1 (aleatório)"
+    llm_description: "Random seed as the basis for determining the initial state of diffusion, default -1 (random). Same positive integer with identical parameters will generate highly similar images"
+    form: llm
+  - name: width
+    type: number
+    required: false
+    default: 512
+    label:
+      en_US: Width
+      zh_Hans: 宽度
+      pt_BR: Largura
+    human_description:
+      en_US: "Image width (256-768), default 512"
+      zh_Hans: "生成图像的宽度（256-768），默认512"
+      pt_BR: "Largura da imagem (256-768), padrão 512"
+    llm_description: "Width of the generated image, range [256, 768], default 512. Large deviation from 512 may significantly increase poor quality and delay"
+    form: llm
+  - name: height
+    type: number
+    required: false
+    default: 512
+    label:
+      en_US: Height
+      zh_Hans: 高度
+      pt_BR: Altura
+    human_description:
+      en_US: "Image height (256-768), default 512"
+      zh_Hans: "生成图像的高度（256-768），默认512"
+      pt_BR: "Altura da imagem (256-768), padrão 512"
+    llm_description: "Height of the generated image, range [256, 768], default 512. Large deviation from 512 may significantly increase poor quality and delay"
+    form: llm
+  - name: use_pre_llm
+    type: boolean
+    required: false
+    default: true
+    label:
+      en_US: Use Text Enhancement
+      zh_Hans: 开启文本扩写
+      pt_BR: Usar Aprimoramento de Texto
+    human_description:
+      en_US: "Enable text enhancement to optimize input prompt"
+      zh_Hans: "开启文本扩写，会针对输入prompt进行扩写优化"
+      pt_BR: "Habilitar aprimoramento de texto para otimizar o prompt de entrada"
+    llm_description: "Enable text expansion to enhance and optimize the input prompt. Recommended for short prompts (length < 4), consider disabling for long prompts"
+    form: llm
+  - name: use_sr
+    type: boolean
+    required: false
+    default: true
+    label:
+      en_US: Use Super Resolution
+      zh_Hans: 开启超分
+      pt_BR: Usar Super Resolução
+    human_description:
+      en_US: "Enable AIGC super resolution to double the output size"
+      zh_Hans: "开启AIGC超分，将输出尺寸翻倍"
+      pt_BR: "Habilitar super resolução AIGC para dobrar o tamanho de saída"
+    llm_description: "True: Text-to-image + AIGC super resolution, False: Text-to-image only. When enabled, output dimensions are doubled but with increased latency"
+    form: llm
+  - name: return_url
+    type: boolean
+    required: false
+    default: true
+    label:
+      en_US: Return URL
+      zh_Hans: 返回图片链接
+      pt_BR: Retornar URL
+    human_description:
+      en_US: "Whether to return image URLs (valid for 24 hours)"
+      zh_Hans: "是否返回图片链接（链接有效期为24小时）"
+      pt_BR: "Se deve retornar URLs de imagem (válidas por 24 horas)"
+    llm_description: "Whether the output should return image links (links are valid for 24 hours)"
+    form: llm
+extra:
+  python:
+    source: tools/cv_process.py
