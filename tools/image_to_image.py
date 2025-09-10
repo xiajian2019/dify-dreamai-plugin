@@ -80,12 +80,13 @@ class ImageToImageTool(Tool):
             
             # 第一步：提交任务
             yield self.create_text_message("正在提交图生图任务...")
-            submit_response = visual_service.cv_submit_task({
+            submit_response = visual_service.cv_sync2async_submit_task({
                 "req_key": 'jimeng_img2img_v30_L',
                 "request_body": json.dumps(form_data)
             })
             
-            if submit_response.get('code') != 10000:
+            # 检查响应是否有错误
+            if 'code' in submit_response and submit_response.get('code') != 10000:
                 error_msg = submit_response.get('message', 'Unknown error')
                 yield self.create_text_message(f"提交任务失败: {error_msg}")
                 return
@@ -106,9 +107,10 @@ class ImageToImageTool(Tool):
                 attempt += 1
                 
                 # 查询任务结果
-                result_response = visual_service.cv_get_result({"task_id": task_id})
+                result_response = visual_service.cv_sync2async_get_result({"task_id": task_id})
                 
-                if result_response.get('code') != 10000:
+                # 检查响应是否有错误
+                if 'code' in result_response and result_response.get('code') != 10000:
                     yield self.create_text_message(f"查询任务失败: {result_response.get('message', 'Unknown error')}")
                     return
                 

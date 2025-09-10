@@ -306,10 +306,16 @@ string
 
 反复折腾好久，居然是因为这个问题。 还是考虑的不够全面。
 
+An error occurred while parsing the data: b'handshake failed, invalid key'
+
+这个错误原因是，debug 的调试key 是有效期的。出现这个就说明 key 过期了, 更换这个key 即可。
+
+
+
+
+
+
 ## 完善文生图 
-
-
-
 
 
 ## 完善图生图 

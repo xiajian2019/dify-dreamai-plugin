@@ -15,7 +15,7 @@ description:
     en_US: "Text-to-image generation using VolcEngine DreamAI 3.0/3.1"
     zh_Hans: "使用火山引擎即梦AI 3.0/3.1进行文生图"
     pt_BR: "Geração de texto para imagem usando VolcEngine DreamAI 3.0/3.1"
-  llm: "Text-to-image generation using VolcEngine DreamAI 3.0/3.1. Supports advanced features like style control and quality settings."
+  llm: "Text-to-image generation using VolcEngine DreamAI 3.0/3.1. Supports advanced features and watermark configuration."
 parameters:
   - name: prompt
     type: string
@@ -28,7 +28,7 @@ parameters:
       en_US: "Text prompt for image generation, supports both Chinese and English"
       zh_Hans: "用于生成图像的提示词，中英文均可输入"
       pt_BR: "Prompt de texto para geração de imagem, suporta chinês e inglês"
-    llm_description: "Text prompt describing the desired image content and style"
+    llm_description: "Text prompt describing the desired image content"
     form: llm
 
   - name: model_version
@@ -87,115 +87,7 @@ parameters:
     llm_description: "Height of the generated image in pixels"
     form: form
 
-  - name: style
-    type: select
-    required: false
-    label:
-      en_US: Style
-      zh_Hans: 风格
-      pt_BR: Estilo
-    human_description:
-      en_US: "Image style (only for 3.1 model)"
-      zh_Hans: "图像风格（仅3.1模型支持）"
-      pt_BR: "Estilo da imagem (apenas para modelo 3.1)"
-    llm_description: "Style preset for image generation (3.1 model only)"
-    form: form
-    depends_on:
-      - variable: model_version
-        value: "3.1"
-    options:
-      - value: "realistic"
-        label:
-          en_US: "Realistic"
-          zh_Hans: "写实"
-          pt_BR: "Realista"
-      - value: "anime"
-        label:
-          en_US: "Anime"
-          zh_Hans: "动漫"
-          pt_BR: "Anime"
-      - value: "oil_painting"
-        label:
-          en_US: "Oil Painting"
-          zh_Hans: "油画"
-          pt_BR: "Pintura a Óleo"
-      - value: "watercolor"
-        label:
-          en_US: "Watercolor"
-          zh_Hans: "水彩"
-          pt_BR: "Aquarela"
 
-  - name: quality
-    type: select
-    required: false
-    default: "standard"
-    label:
-      en_US: Quality
-      zh_Hans: 质量
-      pt_BR: Qualidade
-    human_description:
-      en_US: "Image quality (only for 3.1 model)"
-      zh_Hans: "图像质量（仅3.1模型支持）"
-      pt_BR: "Qualidade da imagem (apenas para modelo 3.1)"
-    llm_description: "Quality level for image generation (3.1 model only)"
-    form: form
-    depends_on:
-      - variable: model_version
-        value: "3.1"
-    options:
-      - value: "standard"
-        label:
-          en_US: "Standard"
-          zh_Hans: "标准"
-          pt_BR: "Padrão"
-      - value: "high"
-        label:
-          en_US: "High"
-          zh_Hans: "高质量"
-          pt_BR: "Alta"
-
-  - name: aspect_ratio
-    type: select
-    required: false
-    label:
-      en_US: Aspect Ratio
-      zh_Hans: 宽高比
-      pt_BR: Proporção
-    human_description:
-      en_US: "Image aspect ratio (only for 3.1 model)"
-      zh_Hans: "图像宽高比（仅3.1模型支持）"
-      pt_BR: "Proporção da imagem (apenas para modelo 3.1)"
-    llm_description: "Aspect ratio for image generation (3.1 model only)"
-    form: form
-    depends_on:
-      - variable: model_version
-        value: "3.1"
-    options:
-      - value: "1:1"
-        label:
-          en_US: "1:1 (Square)"
-          zh_Hans: "1:1（正方形）"
-          pt_BR: "1:1 (Quadrado)"
-      - value: "16:9"
-        label:
-          en_US: "16:9 (Landscape)"
-          zh_Hans: "16:9（横向）"
-          pt_BR: "16:9 (Paisagem)"
-      - value: "9:16"
-        label:
-          en_US: "9:16 (Portrait)"
-          zh_Hans: "9:16（纵向）"
-          pt_BR: "9:16 (Retrato)"
-      - value: "4:3"
-        label:
-          en_US: "4:3"
-          zh_Hans: "4:3"
-          pt_BR: "4:3"
-      - value: "3:4"
-        label:
-          en_US: "3:4"
-          zh_Hans: "3:4"
-          pt_BR: "3:4"
 
   - name: seed
     type: number
@@ -236,7 +128,7 @@ parameters:
       zh_Hans: 使用超分辨率
       pt_BR: Usar Super Resolução
     human_description:
-      en_US: "Enable super resolution for higher quality"
+      en_US: "Enable super resolution for image enhancement"
       zh_Hans: "启用超分辨率以获得更高质量"
       pt_BR: "Habilitar super resolução para maior qualidade"
     llm_description: "Whether to apply super resolution enhancement"

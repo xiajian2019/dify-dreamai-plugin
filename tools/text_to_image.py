@@ -90,12 +90,14 @@ class TextToImageTool(Tool):
             
             # 第一步：提交任务
             yield self.create_text_message("正在提交文生图任务...")
-            submit_resp = visual_service.cv_submit_task(form_data)
+            # 打印提交请求参数
+            print(f"提交请求参数: {form_data}")
+            submit_resp = visual_service.cv_sync2async_submit_task(form_data)
             
-            if submit_resp['ResponseMetadata']['Error']:
-                # Error 是一个结构体， 包含 Code 和 Message， 将这两者 通过 f字符串拼接在一起 
-                error_msg = submit_resp['ResponseMetadata']['Error']
-                yield self.create_text_message(f"提交任务失败: {error_msg['Code']} {error_msg['Message']}")
+            # 检查响应是否有错误
+            if 'code' in submit_resp and submit_resp.get('code') != 10000:
+                error_msg = submit_resp.get('message', 'Unknown error')
+                yield self.create_text_message(f"提交任务失败: {error_msg}")
                 return
             
             # 解析提交响应
@@ -125,20 +127,15 @@ class TextToImageTool(Tool):
                 query_params = {"task_id": task_id, "req_key": req_key}
                 if req_json:
                     query_params["req_json"] = req_json
-                result_resp = visual_service.cv_get_result(query_params)
+                result_resp = visual_service.cv_sync2async_get_result(query_params)
                 
-                if result_resp['ResponseMetadata']['Error']:
-                    error_msg = result_resp['ResponseMetadata']['Error']
+                # 检查响应是否有错误
+                if 'code' in result_resp and result_resp.get('code') != 10000:
+                    error_msg = result_resp.get('message', 'Unknown error')
                     yield self.create_text_message(f"查询任务失败: {error_msg}")
                     return
                 
-                result = result_resp['Result']
-                
-                if result.get('code') != 10000:
-                    yield self.create_text_message(f"查询任务失败: {result.get('message', 'Unknown error')}")
-                    return
-                
-                data = result.get('data', {})
+                data = result_resp.get('data', {})
                 status = data.get('status')
                 
                 if status == 'in_queue':

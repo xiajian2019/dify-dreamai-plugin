@@ -93,15 +93,16 @@ class VideoGenerationTool(Tool):
             yield self.create_text_message(f"正在提交{video_quality}视频生成任务...")
             
             # 调用异步提交API
-            submit_resp = visual_service.cv_submit_task(form_data)
+            submit_resp = visual_service.cv_sync2async_submit_task(form_data)
             
-            if submit_resp['ResponseMetadata']['Error']:
-                error_msg = submit_resp['ResponseMetadata']['Error']
+            # 检查响应是否有错误
+            if 'code' in submit_resp and submit_resp.get('code') != 10000:
+                error_msg = submit_resp.get('message', 'Unknown error')
                 yield self.create_text_message(f"API Error: {error_msg}")
                 return
             
             # 解析提交响应
-            submit_result = submit_resp['Result']
+            submit_result = submit_resp
             
             if submit_result.get('code') != 10000:
                 error_msg = submit_result.get('message', 'Unknown error')
@@ -128,21 +129,15 @@ class VideoGenerationTool(Tool):
                 
                 # 查询任务结果
                 query_data = {'task_id': task_id}
-                result_resp = visual_service.cv_get_result(query_data)
+                result_resp = visual_service.cv_sync2async_get_result(query_data)
                 
-                if result_resp['ResponseMetadata']['Error']:
-                    error_msg = result_resp['ResponseMetadata']['Error']
+                # 检查响应是否有错误
+                if 'code' in result_resp and result_resp.get('code') != 10000:
+                    error_msg = result_resp.get('message', 'Unknown error')
                     yield self.create_text_message(f"Query task failed: {error_msg}")
                     return
                 
-                result = result_resp['Result']
-                
-                if result.get('code') != 10000:
-                    error_msg = result.get('message', 'Unknown error')
-                    yield self.create_text_message(f"Query task failed: {error_msg}")
-                    return
-                
-                data = result.get('data', {})
+                data = result_resp.get('data', {})
                 status = data.get('status')
                 
                 if status == 'in_queue':
