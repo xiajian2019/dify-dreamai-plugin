@@ -1,4 +1,5 @@
 import json
+import time
 from collections.abc import Generator
 from typing import Any
 
@@ -81,37 +82,88 @@ class MotionImitationTool(Tool):
             visual_service.set_ak(access_key)
             visual_service.set_sk(secret_key)
             
-            yield self.create_text_message("Starting motion imitation generation...")
+            # 第一步：提交任务
+            yield self.create_text_message("正在提交动作模仿任务...")
+            submit_data = {
+                'req_key': 'cv_submit_task',
+                'task_type': 'jimeng_motion_imitation_L',
+                'request_body': json.dumps(form_data)
+            }
             
-            # 调用API
-            resp = visual_service.cv_process(form_data)
+            submit_resp = visual_service.cv_process(submit_data)
             
-            if resp['ResponseMetadata']['Error']:
-                error_msg = resp['ResponseMetadata']['Error']
-                yield self.create_text_message(f"API Error: {error_msg}")
+            if submit_resp['ResponseMetadata']['Error']:
+                error_msg = submit_resp['ResponseMetadata']['Error']
+                yield self.create_text_message(f"提交任务失败: {error_msg}")
                 return
             
-            # 解析响应
-            result = resp['Result']
-            
-            if result.get('code') != 10000:
-                error_msg = result.get('message', 'Unknown error')
-                yield self.create_text_message(f"Motion imitation failed: {error_msg}")
+            submit_result = submit_resp['Result']
+            if submit_result.get('code') != 10000:
+                error_msg = submit_result.get('message', 'Unknown error')
+                yield self.create_text_message(f"提交任务失败: {error_msg}")
                 return
             
-            # 获取生成的视频
-            data = result.get('data', {})
+            task_id = submit_result.get('data', {}).get('task_id')
+            if not task_id:
+                yield self.create_text_message("提交任务失败: 未获取到task_id")
+                return
             
-            if return_url and 'video_url' in data:
-                video_url = data['video_url']
-                yield self.create_text_message(f"Motion imitation video generated successfully!\nVideo URL: {video_url}")
-                # 注意：Dify可能不支持直接显示视频，这里只返回URL
-            elif 'binary_data_base64' in data:
-                binary_data = data['binary_data_base64']
-                yield self.create_blob_message(blob=binary_data, meta={'mime_type': 'video/mp4'})
-                yield self.create_text_message("Motion imitation video generated successfully!")
-            else:
-                yield self.create_text_message("No video data found in response")
+            yield self.create_text_message(f"任务已提交，task_id: {task_id}，开始轮询结果...")
+            
+            # 第二步：轮询任务结果
+            max_attempts = 120  # 视频生成时间较长，最多轮询10分钟
+            attempt = 0
+            
+            while attempt < max_attempts:
+                time.sleep(5)  # 等待5秒
+                attempt += 1
+                
+                # 查询任务结果
+                query_data = {
+                    'req_key': 'cv_get_result',
+                    'task_id': task_id
+                }
+                
+                result_resp = visual_service.cv_process(query_data)
+                
+                if result_resp['ResponseMetadata']['Error']:
+                    yield self.create_text_message(f"查询任务失败: {result_resp['ResponseMetadata']['Error']}")
+                    return
+                
+                result_data = result_resp['Result']
+                if result_data.get('code') != 10000:
+                    yield self.create_text_message(f"查询任务失败: {result_data.get('message', 'Unknown error')}")
+                    return
+                
+                data = result_data.get('data', {})
+                status = data.get('status')
+                
+                if status == 'in_queue':
+                    yield self.create_text_message(f"任务排队中... (第{attempt}次查询)")
+                    continue
+                elif status == 'generating':
+                    yield self.create_text_message(f"任务生成中... (第{attempt}次查询)")
+                    continue
+                elif status == 'done':
+                    # 任务完成，处理结果
+                    if return_url and 'video_url' in data:
+                        video_url = data['video_url']
+                        yield self.create_text_message(f"动作模仿视频生成成功!\nVideo URL: {video_url}")
+                    elif 'binary_data_base64' in data:
+                        binary_data = data['binary_data_base64']
+                        yield self.create_blob_message(blob=binary_data, meta={'mime_type': 'video/mp4'})
+                        yield self.create_text_message("动作模仿视频生成成功!")
+                    else:
+                        yield self.create_text_message("任务完成，但未找到视频数据")
+                    return
+                elif status in ['not_found', 'expired']:
+                    yield self.create_text_message(f"任务状态异常: {status}，停止查询")
+                    return
+                else:
+                    yield self.create_text_message(f"未知任务状态: {status}")
+                    continue
+            
+            yield self.create_text_message("任务轮询超时，请稍后手动查询结果")
                 
         except Exception as e:
             yield self.create_text_message(f"Error: {str(e)}")

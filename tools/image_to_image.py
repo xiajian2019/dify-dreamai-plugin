@@ -1,5 +1,6 @@
 import json
 import base64
+import time
 from collections.abc import Generator
 from typing import Any
 
@@ -77,37 +78,72 @@ class ImageToImageTool(Tool):
             visual_service.set_ak(access_key)
             visual_service.set_sk(secret_key)
             
-            yield self.create_text_message("Starting image-to-image generation...")
+            # 第一步：提交任务
+            yield self.create_text_message("正在提交图生图任务...")
+            submit_response = visual_service.cv_submit_task({
+                "req_key": 'jimeng_img2img_v30_L',
+                "request_body": json.dumps(form_data)
+            })
             
-            # 调用API
-            resp = visual_service.cv_process(form_data)
-            
-            if resp['ResponseMetadata']['Error']:
-                error_msg = resp['ResponseMetadata']['Error']
-                yield self.create_text_message(f"API Error: {error_msg}")
+            if submit_response.get('code') != 10000:
+                error_msg = submit_response.get('message', 'Unknown error')
+                yield self.create_text_message(f"提交任务失败: {error_msg}")
                 return
             
-            # 解析响应
-            result = resp['Result']
-            
-            if result.get('code') != 10000:
-                error_msg = result.get('message', 'Unknown error')
-                yield self.create_text_message(f"Generation failed: {error_msg}")
+            task_id = submit_response.get('data', {}).get('task_id')
+            if not task_id:
+                yield self.create_text_message("提交任务失败: 未获取到task_id")
                 return
             
-            # 获取生成的图片
-            data = result.get('data', {})
+            yield self.create_text_message(f"任务已提交，task_id: {task_id}，开始轮询结果...")
             
-            if return_url and 'image_url' in data:
-                image_url = data['image_url']
-                yield self.create_image_message(image_url=image_url)
-                yield self.create_text_message(f"Image-to-image generation completed successfully!\nImage URL: {image_url}")
-            elif 'binary_data_base64' in data:
-                binary_data = data['binary_data_base64']
-                yield self.create_blob_message(blob=binary_data, meta={'mime_type': 'image/png'})
-                yield self.create_text_message("Image-to-image generation completed successfully!")
-            else:
-                yield self.create_text_message("No image data found in response")
+            # 第二步：轮询任务结果
+            max_attempts = 60  # 最多轮询5分钟
+            attempt = 0
+            
+            while attempt < max_attempts:
+                time.sleep(5)  # 等待5秒
+                attempt += 1
+                
+                # 查询任务结果
+                result_response = visual_service.cv_get_result({"task_id": task_id})
+                
+                if result_response.get('code') != 10000:
+                    yield self.create_text_message(f"查询任务失败: {result_response.get('message', 'Unknown error')}")
+                    return
+                
+                data = result_response.get('data', {})
+                status = data.get('status')
+                
+                if status == 'in_queue':
+                    yield self.create_text_message(f"任务排队中... (第{attempt}次查询)")
+                    continue
+                elif status == 'generating':
+                    yield self.create_text_message(f"任务生成中... (第{attempt}次查询)")
+                    continue
+                elif status == 'done':
+                    # 任务完成，处理结果
+                    if return_url and data.get('image_urls'):
+                        image_urls = data['image_urls']
+                        for i, image_url in enumerate(image_urls):
+                            yield self.create_image_message(image_url=image_url)
+                        yield self.create_text_message(f"图片生成成功！共生成{len(image_urls)}张图片")
+                    elif data.get('binary_data_base64'):
+                        binary_data_list = data['binary_data_base64']
+                        for i, binary_data in enumerate(binary_data_list):
+                            yield self.create_blob_message(blob=binary_data, meta={'mime_type': 'image/png'})
+                        yield self.create_text_message(f"图片生成成功！共生成{len(binary_data_list)}张图片")
+                    else:
+                        yield self.create_text_message("任务完成，但未找到图片数据")
+                    return
+                elif status in ['not_found', 'expired']:
+                    yield self.create_text_message(f"任务状态异常: {status}，停止查询")
+                    return
+                else:
+                    yield self.create_text_message(f"未知任务状态: {status}")
+                    continue
+            
+            yield self.create_text_message("任务轮询超时，请稍后手动查询结果")
                 
         except Exception as e:
             yield self.create_text_message(f"Error: {str(e)}")

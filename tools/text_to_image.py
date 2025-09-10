@@ -1,4 +1,5 @@
 import json
+import time
 from collections.abc import Generator
 from typing import Any
 
@@ -29,9 +30,9 @@ class TextToImageTool(Tool):
             
             # 根据模型版本设置req_key
             if model_version == '3.0':
-                req_key = 'jimeng_high_aes_general_v30_L'  # 即梦文生图3.0
+                req_key = 'jimeng_t2i_v30'  # 即梦文生图3.0
             else:
-                req_key = 'jimeng_high_aes_general_v31_L'  # 即梦文生图3.1
+                req_key = 'jimeng_t2i_v31'  # 即梦文生图3.1
             
             # 构建请求数据
             form_data = {
@@ -49,19 +50,6 @@ class TextToImageTool(Tool):
             form_data['width'] = int(width)
             form_data['height'] = int(height)
             
-            # 3.1版本支持更多参数
-            if model_version == '3.1':
-                style = tool_parameters.get('style')
-                if style:
-                    form_data['style'] = style
-                
-                quality = tool_parameters.get('quality', 'standard')
-                form_data['quality'] = quality
-                
-                aspect_ratio = tool_parameters.get('aspect_ratio')
-                if aspect_ratio:
-                    form_data['aspect_ratio'] = aspect_ratio
-            
             use_pre_llm = tool_parameters.get('use_pre_llm', True)
             form_data['use_pre_llm'] = bool(use_pre_llm)
             
@@ -71,42 +59,117 @@ class TextToImageTool(Tool):
             return_url = tool_parameters.get('return_url', True)
             form_data['return_url'] = bool(return_url)
             
+            # 处理水印参数
+            add_logo = tool_parameters.get('add_logo', False)
+            position = tool_parameters.get('position', 0)
+            language = tool_parameters.get('language', 0)
+            opacity = tool_parameters.get('opacity', 1.0)
+            logo_text_content = tool_parameters.get('logo_text_content', '')
+            
+            # 构建req_json参数（用于查询任务时传递）
+            req_json_data = {
+                "return_url": return_url
+            }
+            
+            if add_logo:
+                req_json_data["logo_info"] = {
+                    "add_logo": add_logo,
+                    "position": int(position),
+                    "language": int(language),
+                    "opacity": float(opacity)
+                }
+                if logo_text_content:
+                    req_json_data["logo_info"]["logo_text_content"] = logo_text_content
+            
+            req_json = json.dumps(req_json_data)
+            
             # 初始化VisualService
             visual_service = VisualService()
             visual_service.set_ak(access_key)
             visual_service.set_sk(secret_key)
             
-            yield self.create_text_message(f"Starting {model_version} text-to-image generation...")
+            # 第一步：提交任务
+            yield self.create_text_message("正在提交文生图任务...")
+            submit_resp = visual_service.cv_submit_task(form_data)
             
-            # 调用API
-            resp = visual_service.cv_process(form_data)
-            
-            if resp['ResponseMetadata']['Error']:
-                error_msg = resp['ResponseMetadata']['Error']
-                yield self.create_text_message(f"API Error: {error_msg}")
+            if submit_resp['ResponseMetadata']['Error']:
+                # Error 是一个结构体， 包含 Code 和 Message， 将这两者 通过 f字符串拼接在一起 
+                error_msg = submit_resp['ResponseMetadata']['Error']
+                yield self.create_text_message(f"提交任务失败: {error_msg['Code']} {error_msg['Message']}")
                 return
             
-            # 解析响应
-            result = resp['Result']
+            # 解析提交响应
+            submit_result = submit_resp
             
-            if result.get('code') != 10000:
-                error_msg = result.get('message', 'Unknown error')
-                yield self.create_text_message(f"Generation failed: {error_msg}")
+            if submit_result.get('code') != 10000:
+                error_msg = submit_result.get('message', 'Unknown error')
+                yield self.create_text_message(f"提交任务失败: {error_msg}")
                 return
             
-            # 获取生成的图片
-            data = result.get('data', {})
+            task_id = submit_result.get('data', {}).get('task_id')
+            if not task_id:
+                yield self.create_text_message("提交任务失败: 未获取到task_id")
+                return
             
-            if return_url and 'image_url' in data:
-                image_url = data['image_url']
-                yield self.create_image_message(image_url=image_url)
-                yield self.create_text_message(f"Image generated successfully using {model_version}!\nImage URL: {image_url}")
-            elif 'binary_data_base64' in data:
-                binary_data = data['binary_data_base64']
-                yield self.create_blob_message(blob=binary_data, meta={'mime_type': 'image/png'})
-                yield self.create_text_message(f"Image generated successfully using {model_version}!")
-            else:
-                yield self.create_text_message("No image data found in response")
+            yield self.create_text_message(f"任务已提交，task_id: {task_id}，开始轮询结果...")
+            
+            # 第二步：轮询任务结果
+            max_attempts = 60  # 最多轮询5分钟
+            attempt = 0
+            
+            while attempt < max_attempts:
+                time.sleep(5)  # 等待5秒
+                attempt += 1
+                
+                # 查询任务结果
+                query_params = {"task_id": task_id, "req_key": req_key}
+                if req_json:
+                    query_params["req_json"] = req_json
+                result_resp = visual_service.cv_get_result(query_params)
+                
+                if result_resp['ResponseMetadata']['Error']:
+                    error_msg = result_resp['ResponseMetadata']['Error']
+                    yield self.create_text_message(f"查询任务失败: {error_msg}")
+                    return
+                
+                result = result_resp['Result']
+                
+                if result.get('code') != 10000:
+                    yield self.create_text_message(f"查询任务失败: {result.get('message', 'Unknown error')}")
+                    return
+                
+                data = result.get('data', {})
+                status = data.get('status')
+                
+                if status == 'in_queue':
+                    yield self.create_text_message(f"任务排队中... (第{attempt}次查询)")
+                    continue
+                elif status == 'generating':
+                    yield self.create_text_message(f"任务生成中... (第{attempt}次查询)")
+                    continue
+                elif status == 'done':
+                     # 任务完成，处理结果
+                     if return_url and data.get('image_urls'):
+                         image_urls = data['image_urls']
+                         for i, image_url in enumerate(image_urls):
+                             yield self.create_image_message(image_url=image_url)
+                         yield self.create_text_message(f"图片生成成功！共生成{len(image_urls)}张图片")
+                     elif data.get('binary_data_base64'):
+                         binary_data_list = data['binary_data_base64']
+                         for i, binary_data in enumerate(binary_data_list):
+                             yield self.create_blob_message(blob=binary_data, meta={'mime_type': 'image/png'})
+                         yield self.create_text_message(f"图片生成成功！共生成{len(binary_data_list)}张图片")
+                     else:
+                         yield self.create_text_message("任务完成，但未找到图片数据")
+                     return
+                elif status in ['not_found', 'expired']:
+                    yield self.create_text_message(f"任务状态异常: {status}，停止查询")
+                    return
+                else:
+                    yield self.create_text_message(f"未知任务状态: {status}")
+                    continue
+            
+            yield self.create_text_message("任务轮询超时，请稍后手动查询结果")
                 
         except Exception as e:
             yield self.create_text_message(f"Error: {str(e)}")
