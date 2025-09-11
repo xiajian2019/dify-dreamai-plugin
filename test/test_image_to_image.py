@@ -119,7 +119,7 @@ def test_image_to_image_base64():
     tool = ImageToImageTool(runtime=mock_runtime, session=mock_session)
     
     # 这里通过读取目录下的文件，转换成 base64 的，然后放到  image_input 参数中
-    image_base64 = ''  # 默认1x1像素的示例图片
+    image_base64 = '' 
     
     # 尝试读取测试图片文件
     test_image_path = '/Users/xiajian/works/boohee/dify-plugin/dreamai/tmp/test.jpg'
@@ -137,19 +137,17 @@ def test_image_to_image_base64():
     
     # 测试参数（使用Base64编码的图片，包含水印参数）
     test_params = {
-        'prompt': '改成漫画风格',
+        'prompt': '改成吉卜力动画风格，模糊化人物的背景，无需对白框',
         'image_input': image_base64,
         'scale': 0.5,
         'seed': -1,
         'return_url': True,
-        'add_logo': True,
-        'position': 2,  # 左上角
-        'language': 1,  # 英文
-        'opacity': 0.8,
-        'logo_text_content': 'Test Watermark'
+        'add_logo': False,
+        # 'position': 2,  # 左上角
+        # 'language': 1,  # 英文
+        # 'opacity': 0.8,
+        # 'logo_text_content': 'Test Watermark'
     }
-    
-    print(f"测试参数: {test_params}")
     
     # 执行工具
     try:
