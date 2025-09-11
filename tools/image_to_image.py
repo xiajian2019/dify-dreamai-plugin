@@ -34,7 +34,7 @@ class ImageToImageTool(Tool):
             req_key = "jimeng_i2i_v30"
             # 构建请求数据
             form_data = {
-                'req_key': 'jimeng_i2i_v30',  # 即梦图生图3.0智能参考
+                'req_key': req_key,  # 即梦图生图3.0智能参考
                 'prompt': prompt
             }
             
@@ -71,6 +71,30 @@ class ImageToImageTool(Tool):
             return_url = tool_parameters.get('return_url', True)
             form_data['return_url'] = bool(return_url)
             
+            # 处理水印参数
+            add_logo = tool_parameters.get('add_logo', False)
+            position = tool_parameters.get('position', 0)
+            language = tool_parameters.get('language', 0)
+            opacity = tool_parameters.get('opacity', 1.0)
+            logo_text_content = tool_parameters.get('logo_text_content', '')
+            
+            # 构建req_json参数（用于查询任务时传递）
+            req_json_data = {
+                "return_url": return_url
+            }
+            
+            if add_logo:
+                req_json_data["logo_info"] = {
+                    "add_logo": add_logo,
+                    "position": int(position),
+                    "language": int(language),
+                    "opacity": float(opacity)
+                }
+                if logo_text_content:
+                    req_json_data["logo_info"]["logo_text_content"] = logo_text_content
+            
+            req_json = json.dumps(req_json_data)
+            
             # 初始化VisualService
             visual_service = VisualService()
             visual_service.set_ak(access_key)
@@ -102,7 +126,10 @@ class ImageToImageTool(Tool):
                 attempt += 1
                 
                 # 查询任务结果
-                result_response = visual_service.cv_sync2async_get_result({"req_key": req_key, "task_id": task_id})
+                query_params = {"task_id": task_id, "req_key": req_key}
+                if req_json:
+                    query_params["req_json"] = req_json
+                result_response = visual_service.cv_sync2async_get_result(query_params)
                 
                 # 检查响应是否有错误
                 if 'code' in result_response and result_response.get('code') != 10000:
