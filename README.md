@@ -47,4 +47,34 @@ pip install -r requirements.txt
 
 开通密钥后还需要，在火山引擎中开启即梦AI的服务。
 
+## 本地安装配置 
+
+
+```sh
+dify signature generate -f your_key_pair
+dify signature sign your_plugin_project.difypkg -p your_key_pair.private.pem
+
+```
+
+需要修改  docker-compose.yml 的文件， 找到  plugin_daemon 在 FORCE_VERIFYING_SIGNATURE 之后增加 一些配置
+
+```
+THIRD_PARTY_SIGNATURE_VERIFICATION_ENABLED: true
+THIRD_PARTY_SIGNATURE_VERIFICATION_PUBLIC_KEYS: /app/storage/public_keys/your_key_pair.public.pem
+```
+
+进入 docker ps | grep  plugin 进入容器： 
+
+进入容器 plugin 的容器后
+
+```sh
+mkdir -p storage/public_keys/
+cd storage/public_keys/
+echo 'your_key_pair.public.pem的内容' > your_key_pair.public.pem
+# 重启容器：
+docker compose up plugin_daemon -d 
+```
+
+这样就能安装本地插件了，以后都可以这样安装插件。 
+
 
