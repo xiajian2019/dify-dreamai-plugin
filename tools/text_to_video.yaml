@@ -1,0 +1,121 @@
+identity:
+  author: DreamAI
+  name: text_to_video
+  label:
+    en_US: Text to Video
+    zh_Hans: 文本生成视频
+description:
+  human:
+    en_US: Generate videos from text prompts using VolcEngine's text-to-video AI model
+    zh_Hans: 使用火山引擎的文本生成视频AI模型，根据文本提示生成视频
+  llm: A tool for generating videos from text descriptions using VolcEngine's text-to-video AI model. It supports various parameters like seed, frames, and aspect ratio.
+parameters:
+  - name: prompt
+    type: string
+    required: true
+    label:
+      en_US: Prompt
+      zh_Hans: 提示词
+    human_description:
+      en_US: Text prompt for video generation. Supports both Chinese and English. Recommended within 400 characters, maximum 800 characters.
+      zh_Hans: 用于生成视频的提示词，中英文均可输入。建议在400字以内，不超过800字。
+    llm_description: Text prompt for video generation. Supports both Chinese and English. Recommended within 400 characters, maximum 800 characters.
+    form: llm
+
+  - name: seed
+    type: number
+    required: false
+    default: -1
+    label:
+      en_US: Seed
+      zh_Hans: 随机种子
+    human_description:
+      en_US: Random seed for deterministic generation. Default -1 (random). Same positive integer with identical parameters will generate highly similar videos.
+      zh_Hans: 随机种子，作为确定扩散初始状态的基础，默认-1（随机）。若随机种子为相同正整数且其他参数均一致，则生成视频极大概率效果一致。
+    llm_description: Random seed for deterministic generation. Default -1 (random). Same positive integer with identical parameters will generate highly similar videos.
+    form: form
+
+  - name: frames
+    type: select
+    required: false
+    default: 121
+    label:
+      en_US: Frames
+      zh_Hans: 帧数
+    human_description:
+      en_US: Total number of frames to generate (frames = 24 * n + 1, where n is seconds, supports 5s, 10s)
+      zh_Hans: 生成的总帧数（帧数 = 24 * n + 1，其中n为秒数，支持5s、10s）
+    llm_description: Total number of frames to generate. 121 frames = 5 seconds, 241 frames = 10 seconds.
+    form: form
+    options:
+      - value: 121
+        label:
+          en_US: 121 frames (5 seconds)
+          zh_Hans: 121帧（5秒）
+      - value: 241
+        label:
+          en_US: 241 frames (10 seconds)
+          zh_Hans: 241帧（10秒）
+
+  - name: req_key
+    type: select
+    required: false
+    default: "jimeng_t2v_v30"
+    label:
+      en_US: Video Quality
+      zh_Hans: 视频质量
+    human_description:
+      en_US: Video generation quality and resolution
+      zh_Hans: 视频生成质量和分辨率
+    llm_description: Video generation quality and resolution. Choose between 720P and 1080P.
+    form: form
+    options:
+      - value: "jimeng_t2v_v30"
+        label:
+          en_US: 720P (Standard)
+          zh_Hans: 720P（标准）
+      - value: "jimeng_t2v_v30_1080p"
+        label:
+          en_US: 1080P (High Definition)
+          zh_Hans: 1080P（高清）
+
+  - name: aspect_ratio
+    type: select
+    required: false
+    default: "16:9"
+    label:
+      en_US: Aspect Ratio
+      zh_Hans: 长宽比
+    human_description:
+      en_US: Aspect ratio of the generated video
+      zh_Hans: 生成视频的长宽比
+    llm_description: Aspect ratio of the generated video
+    form: form
+    options:
+      - value: "16:9"
+        label:
+          en_US: 16:9 (Widescreen)
+          zh_Hans: 16:9（宽屏）
+      - value: "4:3"
+        label:
+          en_US: 4:3 (Standard)
+          zh_Hans: 4:3（标准）
+      - value: "1:1"
+        label:
+          en_US: 1:1 (Square)
+          zh_Hans: 1:1（正方形）
+      - value: "3:4"
+        label:
+          en_US: 3:4 (Portrait)
+          zh_Hans: 3:4（竖屏）
+      - value: "9:16"
+        label:
+          en_US: 9:16 (Mobile Portrait)
+          zh_Hans: 9:16（手机竖屏）
+      - value: "21:9"
+        label:
+          en_US: 21:9 (Ultra-wide)
+          zh_Hans: 21:9（超宽屏）
+extra:
+  python:
+    source: tools/text_to_video.py

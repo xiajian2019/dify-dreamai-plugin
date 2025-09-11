@@ -75,9 +75,15 @@ def test_cv_get_result_specific_task():
     tool = CVGetResultTool(runtime=mock_runtime, session=mock_session)
     
     # 测试参数（使用指定的task_id和req_key）
+    # test_params = {
+    #     'task_id': '13611150795167972662',
+    #     'req_key': 'jimeng_i2i_v30'
+    # }
+    
+    # 测试参数（使用指定的task_id和req_key）
     test_params = {
-        'task_id': '13611150795167972662',
-        'req_key': 'jimeng_i2i_v30'
+        'task_id': '3035337728219037513',
+        'req_key': 'jimeng_t2v_v30'
     }
     
     print(f"测试参数: {test_params}")

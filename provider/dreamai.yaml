@@ -89,6 +89,7 @@ tools:
   - tools/sync_text_to_image.yaml
   - tools/text_to_image.yaml
   - tools/image_to_image.yaml
+  - tools/text_to_video.yaml
   - tools/video_generation.yaml
   - tools/motion_imitation.yaml
   - tools/cv_submit_task.yaml
