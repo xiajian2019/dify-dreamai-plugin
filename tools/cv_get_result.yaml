@@ -43,6 +43,19 @@ parameters:
       pt_BR: "O ID da tarefa retornado do cv_submit_task"
     llm_description: "The unique task identifier returned when the task was submitted using cv_submit_task"
     form: llm
+  - name: req_json
+    type: string
+    required: false
+    label:
+      en_US: Request JSON
+      zh_Hans: 请求JSON
+      pt_BR: JSON da Solicitação
+    human_description:
+      en_US: "JSON string containing additional parameters like return_url and logo_info"
+      zh_Hans: "包含return_url和logo_info等附加参数的JSON字符串"
+      pt_BR: "String JSON contendo parâmetros adicionais como return_url e logo_info"
+    llm_description: "Optional JSON string with additional parameters: return_url (bool) for image URL output, logo_info (object) for watermark settings including add_logo, position, language, opacity, and logo_text_content"
+    form: llm
 extra:
   python:
     source: tools/cv_get_result.py

@@ -95,14 +95,13 @@ class VideoGenerationTool(Tool):
             # 调用异步提交API
             submit_resp = visual_service.cv_sync2async_submit_task(form_data)
             
-            # 检查响应是否有错误
-            if 'code' in submit_resp and submit_resp.get('code') != 10000:
-                error_msg = submit_resp.get('message', 'Unknown error')
+            if submit_resp['ResponseMetadata']['Error']:
+                error_msg = submit_resp['ResponseMetadata']['Error']
                 yield self.create_text_message(f"API Error: {error_msg}")
                 return
             
             # 解析提交响应
-            submit_result = submit_resp
+            submit_result = submit_resp['Result']
             
             if submit_result.get('code') != 10000:
                 error_msg = submit_result.get('message', 'Unknown error')
@@ -131,13 +130,19 @@ class VideoGenerationTool(Tool):
                 query_data = {'task_id': task_id}
                 result_resp = visual_service.cv_sync2async_get_result(query_data)
                 
-                # 检查响应是否有错误
-                if 'code' in result_resp and result_resp.get('code') != 10000:
-                    error_msg = result_resp.get('message', 'Unknown error')
+                if result_resp['ResponseMetadata']['Error']:
+                    error_msg = result_resp['ResponseMetadata']['Error']
                     yield self.create_text_message(f"Query task failed: {error_msg}")
                     return
                 
-                data = result_resp.get('data', {})
+                result = result_resp['Result']
+                
+                if result.get('code') != 10000:
+                    error_msg = result.get('message', 'Unknown error')
+                    yield self.create_text_message(f"Query task failed: {error_msg}")
+                    return
+                
+                data = result.get('data', {})
                 status = data.get('status')
                 
                 if status == 'in_queue':

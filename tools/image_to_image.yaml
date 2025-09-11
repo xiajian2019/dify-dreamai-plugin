@@ -25,135 +25,69 @@ parameters:
       zh_Hans: 提示词
       pt_BR: Prompt
     human_description:
-      en_US: "Text prompt describing the desired image modifications"
-      zh_Hans: "描述期望图像修改的提示词"
-      pt_BR: "Prompt de texto descrevendo as modificações desejadas na imagem"
-    llm_description: "Text prompt describing how to modify the reference image"
+      en_US: "Text prompt for editing the image (≤120 chars recommended, max 800)"
+      zh_Hans: "用于编辑图像的提示词（建议≤120字符，最长800字符）"
+      pt_BR: "Prompt de texto para editar a imagem (≤120 chars recomendado, máx 800)"
+    llm_description: "Text prompt for editing the image. Use natural language editing instructions. Single instruction per edit works better. For text in image, use quotes around the text for better accuracy."
     form: llm
 
-  - name: reference_image
+  - name: image_input
     type: string
     required: true
     label:
-      en_US: Reference Image
-      zh_Hans: 参考图像
-      pt_BR: Imagem de Referência
+      en_US: Input Image
+      zh_Hans: 输入图像
+      pt_BR: Imagem de Entrada
     human_description:
-      en_US: "Base64 encoded reference image or image URL"
-      zh_Hans: "Base64编码的参考图像或图像URL"
-      pt_BR: "Imagem de referência codificada em Base64 ou URL da imagem"
-    llm_description: "Reference image for generation (base64 encoded or URL)"
+      en_US: "Base64 encoded image or image URL (exactly 1 image required)"
+      zh_Hans: "Base64编码的图像或图像URL（必须输入1张图片）"
+      pt_BR: "Imagem codificada em Base64 ou URL da imagem (exatamente 1 imagem necessária)"
+    llm_description: "Input image for editing (base64 encoded or URL). Exactly 1 image required."
     form: form
 
   - name: width
     type: number
     required: false
-    default: 1024
+    default: 1328
     label:
       en_US: Width
       zh_Hans: 宽度
       pt_BR: Largura
     human_description:
-      en_US: "Output image width in pixels (512-2048)"
-      zh_Hans: "输出图像宽度，单位像素（512-2048）"
-      pt_BR: "Largura da imagem de saída em pixels (512-2048)"
-    llm_description: "Width of the generated image in pixels"
+      en_US: "Output image width in pixels (512-2016). Must set both width and height to take effect."
+      zh_Hans: "输出图像宽度，单位像素（512-2016）。需同时设置宽度和高度才会生效。"
+      pt_BR: "Largura da imagem de saída em pixels (512-2016). Deve definir largura e altura para ter efeito."
+    llm_description: "Width of the generated image in pixels (512-2016). Both width and height must be set together."
     form: form
 
   - name: height
     type: number
     required: false
-    default: 1024
+    default: 1328
     label:
       en_US: Height
       zh_Hans: 高度
       pt_BR: Altura
     human_description:
-      en_US: "Output image height in pixels (512-2048)"
-      zh_Hans: "输出图像高度，单位像素（512-2048）"
-      pt_BR: "Altura da imagem de saída em pixels (512-2048)"
-    llm_description: "Height of the generated image in pixels"
+      en_US: "Output image height in pixels (512-2016). Must set both width and height to take effect."
+      zh_Hans: "输出图像高度，单位像素（512-2016）。需同时设置宽度和高度才会生效。"
+      pt_BR: "Altura da imagem de saída em pixels (512-2016). Deve definir largura e altura para ter efeito."
+    llm_description: "Height of the generated image in pixels (512-2016). Both width and height must be set together."
     form: form
 
-  - name: reference_strength
+  - name: scale
     type: number
     required: false
     default: 0.5
     label:
-      en_US: Reference Strength
-      zh_Hans: 参考强度
-      pt_BR: Força da Referência
+      en_US: Scale
+      zh_Hans: 编辑强度
+      pt_BR: Escala
     human_description:
-      en_US: "How strongly to follow the reference image (0.0-1.0)"
-      zh_Hans: "参考图像的影响强度（0.0-1.0）"
-      pt_BR: "Quão fortemente seguir a imagem de referência (0.0-1.0)"
-    llm_description: "Strength of reference image influence (0.0 to 1.0)"
-    form: form
-
-  - name: reference_mode
-    type: select
-    required: false
-    default: "auto"
-    label:
-      en_US: Reference Mode
-      zh_Hans: 参考模式
-      pt_BR: Modo de Referência
-    human_description:
-      en_US: "How to use the reference image"
-      zh_Hans: "如何使用参考图像"
-      pt_BR: "Como usar a imagem de referência"
-    llm_description: "Mode for using the reference image"
-    form: form
-    options:
-      - value: "auto"
-        label:
-          en_US: "Auto"
-          zh_Hans: "自动"
-          pt_BR: "Automático"
-      - value: "style"
-        label:
-          en_US: "Style Reference"
-          zh_Hans: "风格参考"
-          pt_BR: "Referência de Estilo"
-      - value: "structure"
-        label:
-          en_US: "Structure Reference"
-          zh_Hans: "结构参考"
-          pt_BR: "Referência de Estrutura"
-      - value: "both"
-        label:
-          en_US: "Style + Structure"
-          zh_Hans: "风格+结构"
-          pt_BR: "Estilo + Estrutura"
-
-  - name: style_weight
-    type: number
-    required: false
-    default: 0.5
-    label:
-      en_US: Style Weight
-      zh_Hans: 风格权重
-      pt_BR: Peso do Estilo
-    human_description:
-      en_US: "Weight for style reference (0.0-1.0)"
-      zh_Hans: "风格参考的权重（0.0-1.0）"
-      pt_BR: "Peso para referência de estilo (0.0-1.0)"
-    llm_description: "Weight for style reference influence (0.0 to 1.0)"
-    form: form
-
-  - name: structure_weight
-    type: number
-    required: false
-    default: 0.5
-    label:
-      en_US: Structure Weight
-      zh_Hans: 结构权重
-      pt_BR: Peso da Estrutura
-    human_description:
-      en_US: "Weight for structure reference (0.0-1.0)"
-      zh_Hans: "结构参考的权重（0.0-1.0）"
-      pt_BR: "Peso para referência de estrutura (0.0-1.0)"
-    llm_description: "Weight for structure reference influence (0.0 to 1.0)"
+      en_US: "Text description influence level (0.0-1.0). Higher values mean stronger text influence and weaker input image influence."
+      zh_Hans: "文本描述影响程度（0.0-1.0）。该值越大代表文本描述影响程度越大，且输入图片影响程度越小。"
+      pt_BR: "Nível de influência da descrição do texto (0.0-1.0). Valores maiores significam influência de texto mais forte e influência de imagem de entrada mais fraca."
+    llm_description: "Scale of text description influence (0.0 to 1.0). Higher values increase text influence and decrease input image influence."
     form: form
 
   - name: seed

@@ -26,43 +26,41 @@ class ImageToImageTool(Tool):
                 yield self.create_text_message("Error: prompt is required")
                 return
             
-            reference_image = tool_parameters.get('reference_image')
-            if not reference_image:
-                yield self.create_text_message("Error: reference_image is required")
+            image_input = tool_parameters.get('image_input')
+            if not image_input:
+                yield self.create_text_message("Error: image_input is required")
                 return
             
+            req_key = "jimeng_i2i_v30"
             # 构建请求数据
             form_data = {
-                'req_key': 'jimeng_img2img_v30_L',  # 即梦图生图3.0智能参考
-                'prompt': prompt,
-                'reference_image': reference_image
+                'req_key': 'jimeng_i2i_v30',  # 即梦图生图3.0智能参考
+                'prompt': prompt
             }
+            
+            # 处理图片输入：binary_data_base64 和 image_urls 二选一
+            if image_input.startswith('http'):
+                # URL格式
+                form_data['image_urls'] = [image_input]
+            else:
+                # Base64格式
+                form_data['binary_data_base64'] = [image_input]
             
             # 添加可选参数
             seed = tool_parameters.get('seed', -1)
             if seed != -1:
                 form_data['seed'] = int(seed)
             
-            width = tool_parameters.get('width', 1024)
-            height = tool_parameters.get('height', 1024)
-            form_data['width'] = int(width)
-            form_data['height'] = int(height)
+            # 编辑强度
+            scale = tool_parameters.get('scale', 0.5)
+            form_data['scale'] = float(scale)
             
-            # 参考强度
-            reference_strength = tool_parameters.get('reference_strength', 0.5)
-            form_data['reference_strength'] = float(reference_strength)
-            
-            # 智能参考模式
-            reference_mode = tool_parameters.get('reference_mode', 'auto')
-            form_data['reference_mode'] = reference_mode
-            
-            # 风格参考权重
-            style_weight = tool_parameters.get('style_weight', 0.5)
-            form_data['style_weight'] = float(style_weight)
-            
-            # 结构参考权重
-            structure_weight = tool_parameters.get('structure_weight', 0.5)
-            form_data['structure_weight'] = float(structure_weight)
+            # 宽高参数（需同时设置才生效）
+            width = tool_parameters.get('width')
+            height = tool_parameters.get('height')
+            if width is not None and height is not None:
+                form_data['width'] = int(width)
+                form_data['height'] = int(height)
             
             use_pre_llm = tool_parameters.get('use_pre_llm', True)
             form_data['use_pre_llm'] = bool(use_pre_llm)
@@ -80,10 +78,7 @@ class ImageToImageTool(Tool):
             
             # 第一步：提交任务
             yield self.create_text_message("正在提交图生图任务...")
-            submit_response = visual_service.cv_sync2async_submit_task({
-                "req_key": 'jimeng_img2img_v30_L',
-                "request_body": json.dumps(form_data)
-            })
+            submit_response = visual_service.cv_sync2async_submit_task(form_data)
             
             # 检查响应是否有错误
             if 'code' in submit_response and submit_response.get('code') != 10000:
@@ -107,7 +102,7 @@ class ImageToImageTool(Tool):
                 attempt += 1
                 
                 # 查询任务结果
-                result_response = visual_service.cv_sync2async_get_result({"task_id": task_id})
+                result_response = visual_service.cv_sync2async_get_result({"req_key": req_key, "task_id": task_id})
                 
                 # 检查响应是否有错误
                 if 'code' in result_response and result_response.get('code') != 10000:
