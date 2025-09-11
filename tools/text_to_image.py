@@ -147,15 +147,24 @@ class TextToImageTool(Tool):
                 elif status == 'done':
                      # 任务完成，处理结果
                      if return_url and data.get('image_urls'):
-                         image_urls = data['image_urls']
-                         for i, image_url in enumerate(image_urls):
-                             yield self.create_image_message(image_url=image_url)
-                         yield self.create_text_message(f"图片生成成功！共生成{len(image_urls)}张图片")
+                        image_urls = data['image_urls']
+                        yield self.create_text_message(f"图片生成成功！共生成{len(image_urls)}张图片")
+                        data_resp = {
+                            "task_id": task_id,
+                            "req_key": req_key,
+                            "image_urls": image_urls,
+                        }
+                        yield self.create_json_message(data_resp)
                      elif data.get('binary_data_base64'):
-                         binary_data_list = data['binary_data_base64']
-                         for i, binary_data in enumerate(binary_data_list):
-                             yield self.create_blob_message(blob=binary_data, meta={'mime_type': 'image/png'})
-                         yield self.create_text_message(f"图片生成成功！共生成{len(binary_data_list)}张图片")
+                        binary_data_list = data['binary_data_base64']
+                        yield self.create_text_message(f"图片生成成功！共生成{len(binary_data_list)}张图片")
+
+                        data_resp = {
+                            "task_id": task_id,
+                            "req_key": req_key,
+                            "binary_data_base64": binary_data_list,
+                        }
+                        yield self.create_json_message(data_resp)
                      else:
                          yield self.create_text_message("任务完成，但未找到图片数据")
                      return

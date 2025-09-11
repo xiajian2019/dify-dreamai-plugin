@@ -75,7 +75,7 @@ class TextToVideoTool(Tool):
                 yield self.create_text_message("提交任务失败: 未获取到task_id")
                 return
             
-            yield self.create_text_message(f"任务已提交，task_id: {task_id}，开始轮询结果...")
+            yield self.create_text_message(f"任务已提交，task_id: {task_id}，开始轮询结果，最多轮询10分钟")
             
             # 第二步：轮询任务结果
             max_attempts = 120  # 视频生成时间较长，最多轮询10分钟
@@ -99,16 +99,24 @@ class TextToVideoTool(Tool):
                 status = data.get('status')
                 
                 if status == 'in_queue':
-                    yield self.create_text_message(f"任务排队中... (第{attempt}次查询)")
+                    yield self.create_text_message(f"第{attempt}次轮询，任务排队中\n")
                     continue
                 elif status == 'generating':
-                    yield self.create_text_message(f"任务生成中... (第{attempt}次查询)")
+                    yield self.create_text_message(f"第{attempt}次轮询，任务生成中\n")
                     continue
                 elif status == 'done':
                      # 任务完成，处理结果
                      if data.get('video_url'):
                          video_url = data['video_url']
-                         yield self.create_text_message(f"视频生成成功！视频地址: {video_url}")
+                         yield self.create_text_message(f"视频生成成功！地址: {video_url}")
+
+                         # 返回结果
+                         data_resp = {
+                            "task_id": task_id,
+                            "req_key": req_key,
+                            "video_url": video_url,
+                         }
+                         yield self.create_json_message(data_resp)
                      else:
                          yield self.create_text_message("任务完成，但未找到视频数据")
                      return
@@ -118,8 +126,8 @@ class TextToVideoTool(Tool):
                 else:
                     yield self.create_text_message(f"未知任务状态: {status}")
                     continue
-            
+
             yield self.create_text_message("任务轮询超时，请稍后手动查询结果")
-                
+            yield self.create_json_message({ "task_id": task_id, "req_key": req_key })
         except Exception as e:
             yield self.create_text_message(f"Error: {str(e)}")
