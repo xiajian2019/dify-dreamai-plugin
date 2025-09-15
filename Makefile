@@ -10,7 +10,10 @@ dev:
 # 构建插件包
 build:
 	@echo "Building dify plugin package..."
+	rm -rf dreamai.difypkg
+	rm -rf dreamai.signed.difypkg
 	dify plugin package ../dreamai
+	dify signature sign  dreamai.difypkg -p ../dreamai.private.pem
 
 # 发布：清理、构建、移动文件并提交到GitHub
 release: clean build

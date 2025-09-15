@@ -236,6 +236,9 @@ parameters:
     type: number
     required: false
     default: 1.0
+    min: 0.0
+    max: 1.0
+    precision: 2
     label:
       en_US: Watermark Opacity
       zh_Hans: 水印不透明度
