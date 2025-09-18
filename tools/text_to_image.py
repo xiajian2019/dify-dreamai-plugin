@@ -31,6 +31,9 @@ class TextToImageTool(Tool):
             # 根据模型版本设置req_key
             if model_version == '3.0':
                 req_key = 'jimeng_t2i_v30'  # 即梦文生图3.0
+            elif model_version == 'doubao_3.0':
+                # 豆包3.0模型使用固定的req_key
+                req_key = 'high_aes_general_v30l_zt2i'
             else:
                 req_key = 'jimeng_t2i_v31'  # 即梦文生图3.1
             
@@ -58,6 +61,11 @@ class TextToImageTool(Tool):
             
             return_url = tool_parameters.get('return_url', True)
             form_data['return_url'] = bool(return_url)
+            
+            # 豆包3.0模型特有参数
+            if model_version == 'doubao_3.0':
+                scale = tool_parameters.get('scale', 2.5)
+                form_data['scale'] = float(scale)
             
             # 处理水印参数
             add_logo = tool_parameters.get('add_logo', False)

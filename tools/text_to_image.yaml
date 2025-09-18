@@ -40,10 +40,10 @@ parameters:
       zh_Hans: 模型版本
       pt_BR: Versão do Modelo
     human_description:
-      en_US: "Choose between DreamAI 3.0 or 3.1 model"
-      zh_Hans: "选择即梦AI 3.0或3.1模型"
-      pt_BR: "Escolha entre o modelo DreamAI 3.0 ou 3.1"
-    llm_description: "Model version to use for generation (3.0 or 3.1)"
+      en_US: "Choose between DreamAI 3.0, 3.1 or Doubao 3.0 model"
+      zh_Hans: "选择即梦AI 3.0、3.1或豆包3.0模型"
+      pt_BR: "Escolha entre o modelo DreamAI 3.0, 3.1 ou Doubao 3.0"
+    llm_description: "Model version to use for generation (3.0, 3.1 or doubao_3.0)"
     form: form
     options:
       - value: "3.0"
@@ -56,6 +56,32 @@ parameters:
           en_US: "DreamAI 3.1"
           zh_Hans: "即梦AI 3.1"
           pt_BR: "DreamAI 3.1"
+      - value: "doubao_3.0"
+        label:
+          en_US: "Doubao 3.0"
+          zh_Hans: "豆包通用3.0-文生图"
+          pt_BR: "Doubao 3.0"
+
+  - name: scale
+    type: number
+    required: false
+    default: 2.5
+    min: 1.0
+    max: 10.0
+    precision: 1
+    label:
+      en_US: Scale
+      zh_Hans: 影响程度
+      pt_BR: Escala
+    human_description:
+      en_US: "Influence degree of text description (1-10)"
+      zh_Hans: "文本描述的影响程度（1-10），仅适用豆包通用3.0-文生图"
+      pt_BR: "Grau de influência da descrição do texto (1-10)"
+    llm_description: "Scale parameter affecting text description influence, range 1-10, default 2.5"
+    form: form
+    depends_on:
+      - variable: model_version
+        value: doubao_3.0
 
   - name: width
     type: number
