@@ -34,6 +34,8 @@ class TextToImageTool(Tool):
             elif model_version == 'doubao_3.0':
                 # 豆包3.0模型使用固定的req_key
                 req_key = 'high_aes_general_v30l_zt2i'
+            elif model_version == '4.0':
+                req_key = 'jimeng_t2i_v40'  # 即梦文生图4.0
             else:
                 req_key = 'jimeng_t2i_v31'  # 即梦文生图3.1
             
@@ -48,10 +50,36 @@ class TextToImageTool(Tool):
             if seed != -1:
                 form_data['seed'] = int(seed)
             
-            width = tool_parameters.get('width', 1024)
-            height = tool_parameters.get('height', 1024)
-            form_data['width'] = int(width)
-            form_data['height'] = int(height)
+            # 处理图片链接参数（4.0版本支持）
+            image_urls_str = tool_parameters.get('image_urls')
+            if image_urls_str and model_version == '4.0':
+                # 将换行分割的字符串转换为数组
+                image_urls = [url.strip() for url in image_urls_str.split('\n') if url.strip()]
+                if image_urls:
+                    form_data['image_urls'] = image_urls
+            
+            # 处理尺寸参数
+            if model_version == '4.0':
+                # 4.0版本支持size参数
+                size = tool_parameters.get('size')
+                if size:
+                    form_data['size'] = int(size)
+                
+                # 4.0版本的宽高参数需要同时传入或都不传
+                width = tool_parameters.get('width')
+                height = tool_parameters.get('height')
+                if width is not None and height is not None:
+                    form_data['width'] = int(width)
+                    form_data['height'] = int(height)
+                elif width is not None or height is not None:
+                    yield self.create_text_message("Error: For 4.0 model, width and height must be specified together or not at all")
+                    return
+            else:
+                # 其他版本使用传统的宽高参数
+                width = tool_parameters.get('width', 1024)
+                height = tool_parameters.get('height', 1024)
+                form_data['width'] = int(width)
+                form_data['height'] = int(height)
             
             use_pre_llm = tool_parameters.get('use_pre_llm', True)
             form_data['use_pre_llm'] = bool(use_pre_llm)
@@ -62,10 +90,38 @@ class TextToImageTool(Tool):
             return_url = tool_parameters.get('return_url', True)
             form_data['return_url'] = bool(return_url)
             
-            # 豆包3.0模型特有参数
-            if model_version == 'doubao_3.0':
-                scale = tool_parameters.get('scale', 2.5)
-                form_data['scale'] = float(scale)
+            # scale参数处理（支持豆包3.0和4.0）
+            if model_version in ['doubao_3.0', '4.0'] and 'scale' in tool_parameters:
+                scale_value = float(tool_parameters['scale'])
+                # 根据模型版本验证范围
+                if model_version == 'doubao_3.0':
+                    if scale_value < 1.0 or scale_value > 10.0:
+                        yield self.create_text_message("Error: Scale value for Doubao 3.0 must be between 1.0 and 10.0")
+                        return
+                elif model_version == '4.0':
+                    if scale_value < 0.0 or scale_value > 1.0:
+                        yield self.create_text_message("Error: Scale value for DreamAI 4.0 must be between 0.0 and 1.0")
+                        return
+                form_data['scale'] = scale_value
+            elif model_version == 'doubao_3.0':
+                form_data['scale'] = 2.5  # 默认值
+            elif model_version == '4.0':
+                form_data['scale'] = 0.5  # 默认值
+            
+            # 4.0版本特有参数
+            if model_version == '4.0':
+                # 强制生成单图参数
+                force_single = tool_parameters.get('force_single', False)
+                form_data['force_single'] = bool(force_single)
+                
+                # 宽高比范围参数
+                min_ratio = tool_parameters.get('min_ratio')
+                if min_ratio is not None:
+                    form_data['min_ratio'] = float(min_ratio)
+                
+                max_ratio = tool_parameters.get('max_ratio')
+                if max_ratio is not None:
+                    form_data['max_ratio'] = float(max_ratio)
             
             # 处理水印参数
             add_logo = tool_parameters.get('add_logo', False)
